@@ -1,0 +1,7 @@
+DotImage
+
+This product includes software developed by The Go Authors.
+Copyright 2009 The Go Authors.
+
+Ported from Go's standard library image package:
+https://go.dev/src/image/
