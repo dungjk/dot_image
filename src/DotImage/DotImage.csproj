@@ -1,17 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../base.props" />
+
   <PropertyGroup>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+    <IsPackable>True</IsPackable>
+    <PackageId>DotImage</PackageId>
+    <Description>A C# port of Go's standard library image package for .NET</Description>
+    <PackageReadmeFile>/README.md</PackageReadmeFile>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Hashing" />
+    <PackageReference Include="NuGetizer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="DotImage.Tests" />
-  </ItemGroup>
-  <ItemGroup>
     <InternalsVisibleTo Include="DotImage.Tests" />
   </ItemGroup>
 </Project>
