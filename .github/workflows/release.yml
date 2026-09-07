@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version (e.g. 0.1.0.0)
+        required: true
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore DotImage.slnx
+
+      - name: Build
+        run: dotnet build DotImage.slnx --no-restore --configuration Release -p:VersionPrefix=${{ steps.version.outputs.version }} -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Test
+        run: dotnet test DotImage.slnx --no-build --configuration Release --verbosity normal
+
+      - name: Authenticate with NuGet via OIDC
+        uses: NuGet/login@v1
+        id: nuget_login
+        with:
+          user: dungjk
+
+      - name: Pack
+        run: dotnet pack src/DotImage/DotImage.csproj --no-build --configuration Release --output ./artifacts -p:VersionPrefix=${{ steps.version.outputs.version }} -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Publish to NuGet.org
+        run: |
+          dotnet nuget push \
+            artifacts/*.nupkg \
+            --api-key "${{ steps.nuget_login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json --skip-duplicate
