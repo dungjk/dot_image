@@ -5,7 +5,7 @@
         <Authors>dungjk</Authors>
         <Copyright>Copyright © dungjk 2026</Copyright>
         <Product>DotImage</Product>
-        <PackageProjectUrl>https://github.com/dungjk/dot_image/tree/main</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/dungjk/dot_image</PackageProjectUrl>
     </PropertyGroup>
     <PropertyGroup>
         <AnalysisLevel>latest</AnalysisLevel>
