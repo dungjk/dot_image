@@ -20,9 +20,6 @@ public static class JpegReader
 
 internal sealed partial class Decoder
 {
-    private static readonly JpegUnsupportedException ErrUnsupportedSubsamplingRatio =
-        new("luma/chroma subsampling ratio");
-
     private Stream _r = Stream.Null;
     private Bits _bits;
     private readonly BytesBuffer _bytes = new();
@@ -113,7 +110,7 @@ internal sealed partial class Decoder
             if (x != 0xff)
                 return x;
             if (_bytes.Buf[_bytes.I] != 0x00)
-                throw ErrMissingFF00;
+                throw new JpegFormatException(JpegConstants.ErrMissingFF00Msg);
             _bytes.I++;
             _bytes.NUnreadable = 2;
             return 0xff;
@@ -127,7 +124,7 @@ internal sealed partial class Decoder
         b = ReadByte();
         _bytes.NUnreadable = 2;
         if (b != 0x00)
-            throw ErrMissingFF00;
+            throw new JpegFormatException(JpegConstants.ErrMissingFF00Msg);
         return 0xff;
     }
 
@@ -210,7 +207,7 @@ internal sealed partial class Decoder
             if (h < 1 || 4 < h || v < 1 || 4 < v)
                 throw new JpegFormatException("luma/chroma subsampling ratio");
             if (h == 3 || v == 3)
-                throw ErrUnsupportedSubsamplingRatio;
+                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
 
             switch (_nComp)
             {
@@ -222,16 +219,16 @@ internal sealed partial class Decoder
                     {
                         case 0:
                             if (hv != 0x11 && hv != 0x22)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                         case 1:
                         case 2:
                             if (hv != 0x11)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                         case 3:
                             if (_comp[0].H != h || _comp[0].V != v)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                     }
                     break;
@@ -248,7 +245,7 @@ internal sealed partial class Decoder
             for (int i = 0; i < 3; i++)
             {
                 if (_maxH % _comp[i].H != 0 || _maxV % _comp[i].V != 0)
-                    throw ErrUnsupportedSubsamplingRatio;
+                    throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
             }
         }
 
@@ -492,7 +489,7 @@ internal sealed partial class Decoder
         int h0 = _comp[0].H, h1 = _comp[1].H, h2 = _comp[2].H;
         int v0 = _comp[0].V, v1 = _comp[1].V, v2 = _comp[2].V;
         if (h1 != h2 || h0 % h1 != 0 || v1 != v2 || v0 % v1 != 0)
-            throw ErrUnsupportedSubsamplingRatio;
+            throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
 
         int cScale = h0 / h1;
         var bounds = _img3!.Bounds();
