@@ -1,3 +1,5 @@
 # .NET Core build folders
 bin/
 obj/
+imaging-master/
+image-master/
