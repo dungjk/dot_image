@@ -10,4 +10,7 @@
   <Folder Name="/samples/">
     <Project Path="samples/DotImage.Samples/DotImage.Samples.csproj" />
   </Folder>
+  <Folder Name="/benchmark/">
+    <Project Path="benchmark/DotImageBench/DotImageBench.csproj" />
+  </Folder>
 </Solution>
