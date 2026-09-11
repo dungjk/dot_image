@@ -15,6 +15,7 @@ class Program
         Sample4_JpegEncode();
         Sample5_YCbCrImage();
         ExtendedSamples.RunAll();
+        ConversionSample.Run();
         Console.WriteLine("All samples completed.");
     }
 
