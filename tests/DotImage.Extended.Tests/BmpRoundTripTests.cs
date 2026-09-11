@@ -31,7 +31,7 @@ public class BmpRoundTripTests
         {
             for (int x = 0; x < 7; x++)
             {
-                var (r, g, b, a) = dst.At(x, y).Rgba();
+                var (r, g, b, a) = dst.At(x, y).GetRgba();
                 Assert.Equal((uint)(x * 3 * 257), r);
                 Assert.Equal((uint)(y * 5 * 257), g);
                 Assert.Equal((uint)((x + y) * 257), b);
@@ -64,7 +64,7 @@ public class BmpRoundTripTests
         {
             for (int x = 0; x < 3; x++)
             {
-                var (r, g, b, a) = dst.At(x, y).Rgba();
+                var (r, g, b, a) = dst.At(x, y).GetRgba();
                 byte want = (byte)(y * 16 + x * 4);
                 Assert.Equal((uint)(want * 257), r);
                 Assert.Equal((uint)(want * 257), g);

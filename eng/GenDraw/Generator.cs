@@ -27,6 +27,7 @@ public static partial class Generator
     };
 
     internal static readonly string[] DTypes = { "Rgba", "Rgba64", "Image" };
+    internal static readonly string[] KernelDTypes = { "Rgba", "Rgba64", "Nrgba", "Image" };
     internal static readonly string[] STypes = { "Gray", "Nrgba", "Rgba", "YCbCr", "Rgba64", "Image" };
     internal static readonly string[] SubsampleRatios = { "444", "422", "420", "440" };
     internal static readonly string[] Ops = { "Over", "Src" };
@@ -48,6 +49,7 @@ public static partial class Generator
     {
         "Rgba" => "RgbaImage",
         "Rgba64" => "ITargetRgba64Image",
+        "Nrgba" => "NrgbaImage",
         "Image" => "IWritableImage",
         _ => throw new Exception($"bad dType {d.DType}"),
     };
@@ -185,7 +187,7 @@ public static partial class Generator
             w.Append(GenLeaves(KernelScaleXLeaf, new GenData("", sType, "", "", ""), false));
         }
         w.Append("\n");
-        foreach (var dType in DTypes)
+        foreach (var dType in KernelDTypes)
         {
             foreach (var op in Ops)
             {
@@ -350,6 +352,8 @@ public static partial class Generator
                 return ExpandSwitch("", "", true, suffix, d.Receiver, LeadingWsOf(prefix));
             case "switchD":
                 return ExpandSwitch("", "", false, suffix, d.Receiver, LeadingWsOf(prefix));
+            case "switchDK":
+                return ExpandSwitch("", "", false, suffix, d.Receiver, LeadingWsOf(prefix), dstTypes: KernelDTypes);
             case "switchS":
                 return ExpandSwitch("", "anyDType", false, suffix, d.Receiver, LeadingWsOf(prefix));
 
@@ -377,7 +381,7 @@ public static partial class Generator
                 return Src(d, dollar, prefix, suffix, indent);
 
             case "tweakD":
-                return d.DType == "Rgba" ? indent + "d += dst.Stride;" : ";";
+                return d.DType is "Rgba" or "Nrgba" ? indent + "d += dst.Stride;" : ";";
             case "tweakDx":
                 if (d.DType == "Rgba")
                 {
@@ -451,7 +455,7 @@ public static partial class Generator
     // switch's "default:") still sees the case-bound dst, so the generated call
     // must pass the bound variable. Similarly, srcVar is the pattern variable
     // bound by the src switch's case label, and is null in its "default:".
-    private static string ExpandSwitch(string op, string dType, bool expandBoth, string template, string receiver, string indent, string? dstVar = null)
+    private static string ExpandSwitch(string op, string dType, bool expandBoth, string template, string receiver, string indent, string? dstVar = null, string[]? dstTypes = null)
     {
         var sb = new StringBuilder();
         if (op == "" && dType != "anyDType")
@@ -461,7 +465,7 @@ public static partial class Generator
             foreach (var opv in Ops)
             {
                 sb.Append(indent).Append(Sp(4)).Append("case Op.").Append(opv).Append(":\n");
-                sb.Append(ExpandSwitch(opv, dType, expandBoth, template, receiver, indent + Sp(8), dstVar));
+                sb.Append(ExpandSwitch(opv, dType, expandBoth, template, receiver, indent + Sp(8), dstVar, dstTypes));
                 sb.Append(indent).Append(Sp(8)).Append("break;\n");
             }
             sb.Append(indent).Append("}\n");
@@ -484,7 +488,7 @@ public static partial class Generator
         else
         {
             fallback = "Image";
-            values = DTypes;
+            values = dstTypes ?? DTypes;
         }
 
         foreach (var v in values)
@@ -521,7 +525,7 @@ public static partial class Generator
             }
             else
             {
-                sb.Append(ExpandSwitch(op, v, false, template, receiver, indent + Sp(8), v == fallback ? null : "d"));
+                sb.Append(ExpandSwitch(op, v, false, template, receiver, indent + Sp(8), v == fallback ? null : "d", dstTypes));
             }
             sb.Append(indent).Append(Sp(8)).Append("break;\n");
         }
@@ -598,13 +602,11 @@ public static partial class Generator
 
     private static string PreInner(GenData d, string ind)
     {
-        switch (d.DType)
+        return d.DType switch
         {
-            default:
-                return ";";
-            case "Rgba":
-                return ind + "int d = " + PixOffset("dst", "dr.Min.X+adr.Min.X", "dr.Min.Y+dy", "*4", "*dst.Stride") + ";";
-        }
+            "Rgba" => ind + "int d = " + PixOffset("dst", "dr.Min.X+adr.Min.X", "dr.Min.Y+dy", "*4", "*dst.Stride") + ";",
+            _ => ";",
+        };
     }
 
     private static string PreKernelOuter(GenData d, string ind)
@@ -626,6 +628,7 @@ public static partial class Generator
             default:
                 return ";";
             case "Rgba":
+            case "Nrgba":
                 return ind + "int d = " + PixOffset("dst", "dr.Min.X+dx", "dr.Min.Y+adr.Min.Y", "*4", "*dst.Stride") + ";";
         }
     }
@@ -714,13 +717,13 @@ public static partial class Generator
                 throw new Exception($"bad sType {d.SType}");
             case "Image":
             {
-                string vars = indent + $"(uint {lhs}r{tmp}, uint {lhs}g{tmp}, uint {lhs}b{tmp}, uint {lhs}a{tmp}) = src.At({x}, {y}).Rgba();";
+                string vars = indent + $"(uint {lhs}r{tmp}, uint {lhs}g{tmp}, uint {lhs}b{tmp}, uint {lhs}a{tmp}) = src.At({x}, {y}).GetRgba();";
                 buf.Append(vars);
                 if (d.DType == "" || d.DType is "Image" or "Rgba64")
                 {
                     buf.Append('\n').Append(indent).Append("if (srcMask != null)\n");
                     buf.Append(indent).Append("{\n");
-                    buf.Append(indent).Append(Sp(4)).Append($"(_, _, _, uint ma) = srcMask.At(smp.X + {x}, smp.Y + {y}).Rgba();\n");
+                    buf.Append(indent).Append(Sp(4)).Append($"(_, _, _, uint ma) = srcMask.At(smp.X + {x}, smp.Y + {y}).GetRgba();\n");
                     foreach (var c in new[] { "r", "g", "b", "a" })
                     {
                         buf.Append(indent).Append(Sp(4)).Append($"{lhs}{c}{tmp} = {lhs}{c}{tmp} * ma / 0xffff;\n");
@@ -735,7 +738,7 @@ public static partial class Generator
                 {
                     buf.Append('\n').Append(indent).Append("if (srcMask != null)\n");
                     buf.Append(indent).Append("{\n");
-                    buf.Append(indent).Append(Sp(4)).Append($"(_, _, _, uint ma) = srcMask.At(smp.X + {x}, smp.Y + {y}).Rgba();\n");
+                    buf.Append(indent).Append(Sp(4)).Append($"(_, _, _, uint ma) = srcMask.At(smp.X + {x}, smp.Y + {y}).GetRgba();\n");
                     buf.Append(indent).Append(Sp(4)).Append($"{lhs}{tmp} = new Rgba64((ushort)((uint){lhs}{tmp}.R * ma / 0xffff), (ushort)((uint){lhs}{tmp}.G * ma / 0xffff), (ushort)((uint){lhs}{tmp}.B * ma / 0xffff), (ushort)((uint){lhs}{tmp}.A * ma / 0xffff));\n");
                     buf.Append(indent).Append("}");
                 }
@@ -796,7 +799,7 @@ public static partial class Generator
     private static string YcbcrToRgb(string lhs, string tmp, string ind)
     {
         var sb = new StringBuilder();
-        sb.Append('\n').Append(ind).Append("// This is an inline version of the YCbCr.Rgba() conversion.\n");
+        sb.Append('\n').Append(ind).Append("// This is an inline version of the YCbCr.GetRgba() conversion.\n");
         sb.Append(ind).Append($"int {lhs}yy1 = src.Y.Span[{lhs}i] * 0x10101;\n");
         sb.Append(ind).Append($"int {lhs}cb1 = src.Cb.Span[{lhs}j] - 128;\n");
         sb.Append(ind).Append($"int {lhs}cr1 = src.Cr.Span[{lhs}j] - 128;\n");
@@ -841,11 +844,11 @@ public static partial class Generator
                     default:
                         throw new Exception($"bad dType {d.DType}");
                     case "Image":
-                        sb.Append(ind).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).Rgba();\n");
+                        sb.Append(ind).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).GetRgba();\n");
                         if (true)
                         {
                             sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                             sb.Append(MaskMult4(p));
                             sb.Append(ind).Append("}\n");
                         }
@@ -858,7 +861,7 @@ public static partial class Generator
                         {
                             sb.Append(ind).Append($"Rgba64 dstAt = dst.Rgba64At({x}, {y});\n");
                             sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                             sb.Append(Ind1).Append($"{p} = new Rgba64((ushort)((uint){p}.R * ma / 0xffff), (ushort)((uint){p}.G * ma / 0xffff), (ushort)((uint){p}.B * ma / 0xffff), (ushort)((uint){p}.A * ma / 0xffff));\n");
                             sb.Append(ind).Append("}\n");
                             sb.Append(ind).Append($"uint {p}a1 = 0xffffu - {p}.A;\n");
@@ -869,7 +872,7 @@ public static partial class Generator
                         {
                             sb.Append(ind).Append($"Rgba64 dstAt = dst.Rgba64At({x}, {y});\n");
                             sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                             sb.Append(MaskMult4(p));
                             sb.Append(ind).Append("}\n");
                             sb.Append(ind).Append($"uint {p}a1 = 0xffff - {p}a;\n");
@@ -909,8 +912,8 @@ public static partial class Generator
                         throw new Exception($"bad dType {d.DType}");
                     case "Image":
                         sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                        sb.Append(Ind1).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).Rgba();\n");
-                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                        sb.Append(Ind1).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).GetRgba();\n");
+                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                         sb.Append(Ind1).Append($"{p}r = {p}r * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}g = {p}g * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}b = {p}b * ma / 0xffff;\n");
@@ -930,7 +933,7 @@ public static partial class Generator
                         {
                             sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
                             sb.Append(Ind1).Append($"Rgba64 dstAt = dst.Rgba64At({x}, {y});\n");
-                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                             sb.Append(Ind1).Append($"{p} = new Rgba64((ushort)((uint){p}.R * ma / 0xffff), (ushort)((uint){p}.G * ma / 0xffff), (ushort)((uint){p}.B * ma / 0xffff), (ushort)((uint){p}.A * ma / 0xffff));\n");
                             sb.Append(Ind1).Append($"uint {p}a1 = 0xffff - ma;\n");
                             sb.Append(Ind1).Append($"dstColorRGBA64 = new Rgba64((ushort)((uint)dstAt.R * {p}a1 / 0xffff + {p}.R), (ushort)((uint)dstAt.G * {p}a1 / 0xffff + {p}.G), (ushort)((uint)dstAt.B * {p}a1 / 0xffff + {p}.B), (ushort)((uint)dstAt.A * {p}a1 / 0xffff + {p}.A));\n");
@@ -945,7 +948,7 @@ public static partial class Generator
                         {
                             sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
                             sb.Append(Ind1).Append($"Rgba64 dstAt = dst.Rgba64At({x}, {y});\n");
-                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                            sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                             sb.Append(Ind1).Append($"{p}r = {p}r * ma / 0xffff;\n");
                             sb.Append(Ind1).Append($"{p}g = {p}g * ma / 0xffff;\n");
                             sb.Append(Ind1).Append($"{p}b = {p}b * ma / 0xffff;\n");
@@ -1035,11 +1038,11 @@ public static partial class Generator
                     default:
                         throw new Exception($"bad dType {d.DType}");
                     case "Image":
-                        sb.Append(ind).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).Rgba();\n");
+                        sb.Append(ind).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).GetRgba();\n");
                         sb.Append(ConvLines4("uint " + p, ";"));
                         sb.Append('\n');
                         sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                         sb.Append(Ind1).Append($"{p}r0 = {p}r0 * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}g0 = {p}g0 * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}b0 = {p}b0 * ma / 0xffff;\n");
@@ -1054,7 +1057,7 @@ public static partial class Generator
                         sb.Append(ConvLines4("uint " + p, ";"));
                         sb.Append('\n');
                         sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                         sb.Append(Ind1).Append($"{p}r0 = {p}r0 * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}g0 = {p}g0 * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"{p}b0 = {p}b0 * ma / 0xffff;\n");
@@ -1065,6 +1068,7 @@ public static partial class Generator
                         sb.Append(ind).Append($"dst.SetRgba64({x}, {y}, dstColorRGBA64);");
                         break;
                     case "Rgba":
+                    case "Nrgba":
                         sb.Append(ConvLines4("uint " + p, ";"));
                         sb.Append('\n');
                         sb.Append(ind).Append($"uint {p}a1 = (0xffff - {p}a0) * 0x101;\n");
@@ -1085,8 +1089,8 @@ public static partial class Generator
                         throw new Exception($"bad dType {d.DType}");
                     case "Image":
                         sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
-                        sb.Append(Ind1).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).Rgba();\n");
-                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                        sb.Append(Ind1).Append($"(uint qr, uint qg, uint qb, uint qa) = dst.At({x}, {y}).GetRgba();\n");
+                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                         sb.Append(Ind1).Append($"uint {p}r0 = {convFn}({p}r{W}) * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"uint {p}g0 = {convFn}({p}g{W}) * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"uint {p}b0 = {convFn}({p}b{W}) * ma / 0xffff;\n");
@@ -1104,7 +1108,7 @@ public static partial class Generator
                     case "Rgba64":
                         sb.Append(ind).Append("if (dstMask != null)\n").Append(ind).Append("{\n");
                         sb.Append(Ind1).Append($"Rgba64 dstAt = dst.Rgba64At({x}, {y});\n");
-                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).Rgba();\n");
+                        sb.Append(Ind1).Append($"(_, _, _, uint ma) = dstMask.At(dmp.X + {x}, dmp.Y + {y}).GetRgba();\n");
                         sb.Append(Ind1).Append($"uint {p}r0 = {convFn}({p}r{W}) * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"uint {p}g0 = {convFn}({p}g{W}) * ma / 0xffff;\n");
                         sb.Append(Ind1).Append($"uint {p}b0 = {convFn}({p}b{W}) * ma / 0xffff;\n");
@@ -1120,6 +1124,7 @@ public static partial class Generator
                         sb.Length -= 1;
                         break;
                     case "Rgba":
+                    case "Nrgba":
                         switch (d.SType)
                         {
                             default:

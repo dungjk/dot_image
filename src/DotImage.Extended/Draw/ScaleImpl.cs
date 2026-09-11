@@ -92,7 +92,7 @@ internal static partial class ScaleImpl
 
     internal static void TransformUniform(IWritableImage dst, Rect dr, Rect adr, Aff3 d2s, UniformImage src, Rect sr, Point bias, Op op)
     {
-        (uint pr, uint pg, uint pb, uint pa) = src.C.Rgba();
+        (uint pr, uint pg, uint pb, uint pa) = src.C.GetRgba();
         uint pa1;
         if (op == Op.Over)
         {
@@ -122,7 +122,7 @@ internal static partial class ScaleImpl
                 }
                 else
                 {
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     dst.Set(dr.Min.X + dx, dr.Min.Y + dy, new Rgba64(
                         (ushort)(qr * pa1 / 0xffff + pr),
                         (ushort)(qg * pa1 / 0xffff + pg),

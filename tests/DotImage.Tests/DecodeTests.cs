@@ -50,8 +50,8 @@ public class DecodeTests
 
     private static bool WithinTolerance(IColor c0, IColor c1, int tolerance)
     {
-        var (r0, g0, b0, a0) = c0.Rgba();
-        var (r1, g1, b1, a1) = c1.Rgba();
+        var (r0, g0, b0, a0) = c0.GetRgba();
+        var (r1, g1, b1, a1) = c1.GetRgba();
         return Delta(r0, r1) <= tolerance &&
                Delta(g0, g1) <= tolerance &&
                Delta(b0, b1) <= tolerance &&
@@ -60,7 +60,7 @@ public class DecodeTests
 
     private static string RgbaString(IColor c)
     {
-        var (r, g, b, a) = c.Rgba();
+        var (r, g, b, a) = c.GetRgba();
         return $"rgba = 0x{r:x4}, 0x{g:x4}, 0x{b:x4}, 0x{a:x4} for {c.GetType()}{c}";
     }
 

@@ -41,7 +41,7 @@ public class TiffRoundTripTests
         {
             for (int x = 0; x < w; x++)
             {
-                (uint r, uint g, uint b, uint a) = dst.At(x, y).Rgba();
+                (uint r, uint g, uint b, uint a) = dst.At(x, y).GetRgba();
                 Assert.Equal(255u, a >> 8);
                 byte er = (byte)(x * 255 / w);
                 byte eg = (byte)(y * 255 / h);
@@ -102,8 +102,8 @@ public class TiffRoundTripTests
         {
             for (int x = ra.Min.X; x < ra.Max.X; x++)
             {
-                (uint r1, uint g1, uint b1, uint a1) = a.At(x, y).Rgba();
-                (uint r2, uint g2, uint b2, uint a2) = b.At(x, y).Rgba();
+                (uint r1, uint g1, uint b1, uint a1) = a.At(x, y).GetRgba();
+                (uint r2, uint g2, uint b2, uint a2) = b.At(x, y).GetRgba();
                 Assert.True(r1 == r2 && g1 == g2 && b1 == b2 && a1 == a2,
                     $"pixel ({x},{y}): got ({r1},{g1},{b1},{a1}) want ({r2},{g2},{b2},{a2})");
             }

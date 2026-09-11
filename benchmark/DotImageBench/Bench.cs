@@ -12,12 +12,16 @@ static class Bench
 
     public static string JpegPath { get; private set; } = string.Empty;
     public static byte[] JpegBytes { get; private set; } = Array.Empty<byte>();
+    public static string PngPath { get; private set; } = string.Empty;
+    public static byte[] PngBytes { get; private set; } = Array.Empty<byte>();
     public static bool VipsAvailable { get; private set; }
 
     static Bench()
     {
         JpegPath = FindJpeg();
         JpegBytes = File.ReadAllBytes(JpegPath);
+        PngPath = FindPng();
+        PngBytes = File.ReadAllBytes(PngPath);
         try
         {
             NetVips.Image.NewFromFile(JpegPath, access: Enums.Access.Sequential).CopyMemory();
@@ -32,9 +36,28 @@ static class Bench
 
     public static byte[] LoadJpeg() => JpegBytes;
 
+    public static byte[] LoadPng() => PngBytes;
+
     private static string FindJpeg()
     {
         const string name = "sample_640×426.jpeg";
+        string[] candidates =
+        [
+            Path.Combine(AppContext.BaseDirectory, "images", name),
+            Path.Combine(Environment.CurrentDirectory, "samples", "DotImage.Samples", "images", name),
+            Path.Combine(Environment.CurrentDirectory, "images", name),
+        ];
+        foreach (string c in candidates)
+        {
+            if (File.Exists(c))
+                return c;
+        }
+        throw new FileNotFoundException(name);
+    }
+
+    private static string FindPng()
+    {
+        const string name = "sample_640×426.png";
         string[] candidates =
         [
             Path.Combine(AppContext.BaseDirectory, "images", name),
@@ -57,6 +80,22 @@ static class Bench
             for (int x = b.Min.X; x < b.Max.X; x++)
                 dst.SetNrgba(x, y, (Nrgba)ColorModels.Nrgba.Convert(image.At(x, y)));
         return dst;
+    }
+
+    public static void FillPattern(NrgbaImage img)
+    {
+        var b = img.Bounds();
+        for (int y = b.Min.Y; y < b.Max.Y; y++)
+        {
+            for (int x = b.Min.X; x < b.Max.X; x++)
+            {
+                img.SetNrgba(x, y, new Nrgba(
+                    (byte)((x * 31 + y * 7) & 0xff),
+                    (byte)((x * 13 + y * 29) & 0xff),
+                    (byte)((x * 5 + y * 11) & 0xff),
+                    0xff));
+            }
+        }
     }
 
     public static NrgbaImage BicubicScale(NrgbaImage src, int dw, int dh)
@@ -122,12 +161,15 @@ static class Bench
 
     public static void BrightnessDotImage(NrgbaImage img)
     {
-        for (int y = 0; y < img.Bounds().Dy(); y++)
-            for (int x = 0; x < img.Bounds().Dx(); x++)
+        img.ProcessRows((_, row) =>
+        {
+            for (int i = 0; i < row.Length; i += 4)
             {
-                var c = (Nrgba)img.At(x, y);
-                img.SetNrgba(x, y, new Nrgba(ClampByte(c.R + BrightnessDelta), ClampByte(c.G + BrightnessDelta), ClampByte(c.B + BrightnessDelta), c.A));
+                row[i] = ClampByte(row[i] + BrightnessDelta);
+                row[i + 1] = ClampByte(row[i + 1] + BrightnessDelta);
+                row[i + 2] = ClampByte(row[i + 2] + BrightnessDelta);
             }
+        });
     }
 
     public static void BrightnessImageSharp(ImageSharpImage img)

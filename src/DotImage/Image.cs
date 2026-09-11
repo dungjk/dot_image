@@ -4,6 +4,8 @@ using DotImage.Color;
 
 namespace DotImage;
 
+public delegate void PixelRowCallback(int y, Span<byte> row);
+
 public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 {
     public Memory<byte> Pix;
@@ -16,7 +18,7 @@ public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Rgba64(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Rgba64(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         ushort r = s[0], g = s[1], b = s[2], a = s[3];
@@ -25,7 +27,7 @@ public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba RgbaAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Rgba(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Rgba(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         return new Rgba(s[0], s[1], s[2], s[3]);
@@ -34,9 +36,14 @@ public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 4;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 4, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 4, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Rgba)Models.Rgba.Convert(c);
         var s = Pix.Span.Slice(i, 4);
@@ -48,7 +55,7 @@ public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         s[0] = (byte)(c.R >> 8);
@@ -59,7 +66,7 @@ public sealed class RgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba(int x, int y, Rgba c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         s[0] = c.R;
@@ -106,7 +113,7 @@ public sealed class Rgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Rgba64(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Rgba64(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 8);
         return new Rgba64(
@@ -119,9 +126,14 @@ public sealed class Rgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 8;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 8, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 8, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Rgba64)Models.Rgba64.Convert(c);
         var s = Pix.Span.Slice(i, 8);
@@ -137,7 +149,7 @@ public sealed class Rgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 8);
         s[0] = (byte)(c.R >> 8);
@@ -188,13 +200,13 @@ public sealed class NrgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = NrgbaAt(x, y).Rgba();
+        var (r, g, b, a) = NrgbaAt(x, y).GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public Nrgba NrgbaAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Nrgba(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Nrgba(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         return new Nrgba(s[0], s[1], s[2], s[3]);
@@ -203,9 +215,14 @@ public sealed class NrgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 4;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 4, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 4, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Nrgba)Models.Nrgba.Convert(c);
         var s = Pix.Span.Slice(i, 4);
@@ -217,7 +234,7 @@ public sealed class NrgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         uint r = c.R, g = c.G, b = c.B, a = c.A;
         if (a != 0 && a != 0xffff)
         {
@@ -235,7 +252,7 @@ public sealed class NrgbaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetNrgba(int x, int y, Nrgba c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         s[0] = c.R;
@@ -282,13 +299,13 @@ public sealed class Nrgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = Nrgba64At(x, y).Rgba();
+        var (r, g, b, a) = Nrgba64At(x, y).GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public Nrgba64 Nrgba64At(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Nrgba64(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Nrgba64(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 8);
         return new Nrgba64(
@@ -301,9 +318,14 @@ public sealed class Nrgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 8;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 8, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 8, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Nrgba64)Models.Nrgba64.Convert(c);
         var s = Pix.Span.Slice(i, 8);
@@ -319,7 +341,7 @@ public sealed class Nrgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         uint r = c.R, g = c.G, b = c.B, a = c.A;
         if (a != 0 && a != 0xffff)
         {
@@ -341,7 +363,7 @@ public sealed class Nrgba64Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetNrgba64(int x, int y, Nrgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 8);
         s[0] = (byte)(c.R >> 8);
@@ -399,28 +421,33 @@ public sealed class AlphaImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Alpha AlphaAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Alpha(0);
+        if (!Rect.Contains(x, y)) return new Alpha(0);
         return new Alpha(Pix.Span[PixOffset(x, y)]);
     }
 
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X);
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 1, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 1, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = ((Alpha)Models.Alpha.Convert(c)).A;
     }
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = (byte)(c.A >> 8);
     }
 
     public void SetAlpha(int x, int y, Alpha c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = c.A;
     }
 
@@ -468,7 +495,7 @@ public sealed class Alpha16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Alpha16 Alpha16At(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Alpha16(0);
+        if (!Rect.Contains(x, y)) return new Alpha16(0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
         return new Alpha16((ushort)(s[0] << 8 | s[1]));
@@ -477,9 +504,14 @@ public sealed class Alpha16Image : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 2;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 2, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 2, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Alpha16)Models.Alpha16.Convert(c);
         var s = Pix.Span.Slice(i, 2);
@@ -489,7 +521,7 @@ public sealed class Alpha16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
         s[0] = (byte)(c.A >> 8);
@@ -498,7 +530,7 @@ public sealed class Alpha16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetAlpha16(int x, int y, Alpha16 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
         s[0] = (byte)(c.A >> 8);
@@ -550,29 +582,34 @@ public sealed class GrayImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Gray GrayAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Gray(0);
+        if (!Rect.Contains(x, y)) return new Gray(0);
         return new Gray(Pix.Span[PixOffset(x, y)]);
     }
 
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X);
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 1, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 1, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = ((Gray)Models.Gray.Convert(c)).Y;
     }
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         uint gray = (19595 * (uint)c.R + 38470 * (uint)c.G + 7471 * (uint)c.B + 1 << 15) >> 24;
         Pix.Span[PixOffset(x, y)] = (byte)gray;
     }
 
     public void SetGray(int x, int y, Gray c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = c.Y;
     }
 
@@ -605,7 +642,7 @@ public sealed class Gray16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Gray16 Gray16At(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Gray16(0);
+        if (!Rect.Contains(x, y)) return new Gray16(0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
         return new Gray16((ushort)(s[0] << 8 | s[1]));
@@ -614,9 +651,14 @@ public sealed class Gray16Image : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 2;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 2, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 2, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Gray16)Models.Gray16.Convert(c);
         var s = Pix.Span.Slice(i, 2);
@@ -626,7 +668,7 @@ public sealed class Gray16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         uint gray = (19595 * (uint)c.R + 38470 * (uint)c.G + 7471 * (uint)c.B + 1 << 15) >> 16;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
@@ -636,7 +678,7 @@ public sealed class Gray16Image : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetGray16(int x, int y, Gray16 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 2);
         s[0] = (byte)(c.Y >> 8);
@@ -666,13 +708,13 @@ public sealed class CmykImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = CmykAt(x, y).Rgba();
+        var (r, g, b, a) = CmykAt(x, y).GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public Cmyk CmykAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new Cmyk(0, 0, 0, 0);
+        if (!Rect.Contains(x, y)) return new Cmyk(0, 0, 0, 0);
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         return new Cmyk(s[0], s[1], s[2], s[3]);
@@ -681,9 +723,14 @@ public sealed class CmykImage : IWritableImage, IRgba64Image, ISetRgba64Image
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X) * 4;
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 4, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 4, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var c1 = (Cmyk)Models.Cmyk.Convert(c);
         var s = Pix.Span.Slice(i, 4);
@@ -695,7 +742,7 @@ public sealed class CmykImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         var (cc, mm, yy, kk) = YCbCrUtil.RGBToCMYK((byte)(c.R >> 8), (byte)(c.G >> 8), (byte)(c.B >> 8));
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
@@ -707,7 +754,7 @@ public sealed class CmykImage : IWritableImage, IRgba64Image, ISetRgba64Image
 
     public void SetCmyk(int x, int y, Cmyk c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         int i = PixOffset(x, y);
         var s = Pix.Span.Slice(i, 4);
         s[0] = c.C;
@@ -740,44 +787,49 @@ public sealed class PalettedImage : IWritableImage, IRgba64Image, IPalettedImage
     public IColor At(int x, int y)
     {
         if (Palette.Length == 0) return Colors.Transparent;
-        if (!new Point(x, y).In(Rect)) return Palette[0];
+        if (!Rect.Contains(x, y)) return Palette[0];
         return Palette[Pix.Span[PixOffset(x, y)]];
     }
 
     public Rgba64 Rgba64At(int x, int y)
     {
         if (Palette.Length == 0) return new Rgba64(0, 0, 0, 0);
-        IColor c = !new Point(x, y).In(Rect)
+        IColor c = !Rect.Contains(x, y)
             ? Palette[0]
             : Palette[Pix.Span[PixOffset(x, y)]];
-        var (r, g, b, a) = c.Rgba();
+        var (r, g, b, a) = c.GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public int PixOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * Stride + (x - this.Rect.Min.X);
 
+    public Span<byte> RowSpan(int y) => PixelRows.Row(Pix, Rect, Stride, 1, y);
+
+    public void ProcessRows(PixelRowCallback process) =>
+        PixelRows.ProcessRows(Rect, Stride, 1, Pix, process);
+
     public void Set(int x, int y, IColor c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = (byte)Palette.Index(c);
     }
 
     public void SetRgba64(int x, int y, Rgba64 c)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = (byte)Palette.Index(c);
     }
 
     public byte ColorIndexAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return 0;
+        if (!Rect.Contains(x, y)) return 0;
         return Pix.Span[PixOffset(x, y)];
     }
 
     public void SetColorIndex(int x, int y, byte index)
     {
-        if (!new Point(x, y).In(Rect)) return;
+        if (!Rect.Contains(x, y)) return;
         Pix.Span[PixOffset(x, y)] = index;
     }
 
@@ -810,10 +862,24 @@ public sealed class PalettedImage : IWritableImage, IRgba64Image, IPalettedImage
         for (int i = 0; i < Palette.Length; i++)
         {
             if (!present[i]) continue;
-            var (_, _, _, a) = Palette[i].Rgba();
+            var (_, _, _, a) = Palette[i].GetRgba();
             if (a != 0xffff) return false;
         }
         return true;
+    }
+}
+
+internal static class PixelRows
+{
+    internal static Span<byte> Row(Memory<byte> pix, Rect rect, int stride, int bytesPerPixel, int y) =>
+        pix.Span.Slice((y - rect.Min.Y) * stride, rect.Dx() * bytesPerPixel);
+
+    internal static void ProcessRows(Rect rect, int stride, int bytesPerPixel, Memory<byte> pix, PixelRowCallback process)
+    {
+        int rowBytes = rect.Dx() * bytesPerPixel;
+        var pixSpan = pix.Span;
+        for (int y = rect.Min.Y; y < rect.Max.Y; y++)
+            process(y, pixSpan.Slice((y - rect.Min.Y) * stride, rowBytes));
     }
 }
 

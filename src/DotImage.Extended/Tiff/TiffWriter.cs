@@ -192,7 +192,7 @@ public static class TiffWriter
                 byte r0 = 0, g0 = 0, b0 = 0, a0 = 0;
                 for (int x = bounds.Min.X; x < bounds.Max.X; x++)
                 {
-                    (uint r, uint g, uint b, uint a) = m.At(x, y).Rgba();
+                    (uint r, uint g, uint b, uint a) = m.At(x, y).GetRgba();
                     byte r1 = (byte)(r >> 8);
                     byte g1 = (byte)(g >> 8);
                     byte b1 = (byte)(b >> 8);
@@ -212,7 +212,7 @@ public static class TiffWriter
             {
                 for (int x = bounds.Min.X; x < bounds.Max.X; x++)
                 {
-                    (uint r, uint g, uint b, uint a) = m.At(x, y).Rgba();
+                    (uint r, uint g, uint b, uint a) = m.At(x, y).GetRgba();
                     buf[off + 0] = (byte)(r >> 8);
                     buf[off + 1] = (byte)(g >> 8);
                     buf[off + 2] = (byte)(b >> 8);
@@ -391,7 +391,7 @@ public static class TiffWriter
                 colorMap = new uint[256 * 3];
                 for (int i = 0; i < 256 && i < paletted.Palette.Length; i++)
                 {
-                    (uint r, uint g, uint b, _) = paletted.Palette[i].Rgba();
+                    (uint r, uint g, uint b, _) = paletted.Palette[i].GetRgba();
                     colorMap[i + 0 * 256] = r;
                     colorMap[i + 1 * 256] = g;
                     colorMap[i + 2 * 256] = b;

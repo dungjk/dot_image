@@ -38,7 +38,7 @@ public class TiffLzwDecodeTests
         {
             for (int x = 0; x < 40; x++)
             {
-                (uint r, uint g, uint b, uint a) = dst.At(x, y).Rgba();
+                (uint r, uint g, uint b, uint a) = dst.At(x, y).GetRgba();
                 (byte er, byte eg, byte eb) = ExpectedPixel(x, y);
                 Assert.Equal((uint)er, r >> 8);
                 Assert.Equal((uint)eg, g >> 8);

@@ -137,7 +137,7 @@ public readonly struct YCbCr(byte y, byte cb, byte cr) : IColor
     public byte Cb { get; } = cb;
     public byte Cr { get; } = cr;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         int yy1 = Y * 0x10101;
         int cb1 = Cb - 128;
@@ -192,7 +192,7 @@ public readonly struct NYCbCrA(byte y, byte cb, byte cr, byte a) : IColor
     {
     }
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         int yy1 = Y * 0x10101;
         int cb1 = Cb - 128;
@@ -244,7 +244,7 @@ public readonly struct Cmyk(byte c, byte m, byte y, byte k) : IColor
     public byte Y { get; } = y;
     public byte K { get; } = k;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint w = 0xffff - (uint)K * 0x101;
         uint r = (0xffff - (uint)C * 0x101) * w / 0xffff;

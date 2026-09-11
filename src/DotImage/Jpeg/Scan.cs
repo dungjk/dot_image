@@ -38,6 +38,15 @@ internal sealed partial class Decoder
                 _flex = true;
         }
 
+        if (_nComp == 3 && IsRGB() && !_flex)
+        {
+            var rgba = Images.NewRgba(Geometry.Rect(0, 0, 8 * _maxH * mxx, 8 * _maxV * myy));
+            _imgRgb = (RgbaImage)rgba.SubImage(Geometry.Rect(0, 0, _width, _height));
+            _rgbHScale = _maxH / _comp[1].H;
+            _rgbVScale = _maxV / _comp[1].V;
+            return;
+        }
+
         var ycbcr = YCbCrImages.NewYCbCr(Geometry.Rect(0, 0, 8 * _maxH * mxx, 8 * _maxV * myy), subsampleRatio);
         _img3 = (YCbCrImage)ycbcr.SubImage(Geometry.Rect(0, 0, _width, _height));
 
@@ -108,7 +117,7 @@ internal sealed partial class Decoder
 
         int mxx = (_width + 8 * _maxH - 1) / (8 * _maxH);
         int myy = (_height + 8 * _maxV - 1) / (8 * _maxV);
-        if (_img1 == null && _img3 == null)
+        if (_img1 == null && _img3 == null && _imgRgb == null)
             MakeImg(mxx, myy);
         if (_progressive)
         {
@@ -118,10 +127,7 @@ internal sealed partial class Decoder
                 if (_progCoeffs[compIndex] == null)
                 {
                     int count = mxx * myy * _comp[compIndex].H * _comp[compIndex].V;
-                    var blocks = new Block[count];
-                    for (int k = 0; k < count; k++)
-                        blocks[k] = new Block();
-                    _progCoeffs[compIndex] = blocks;
+                    _progCoeffs[compIndex] = new Block[count];
                 }
             }
         }
@@ -158,11 +164,10 @@ internal sealed partial class Decoder
                                 continue;
                         }
 
-                        Block b;
-                        if (_progressive)
-                            b = _progCoeffs[compIndex]![by * mxx * hi + bx].Clone();
-                        else
-                            b = new Block();
+                        Block scratch = default;
+                        ref Block b = ref (_progressive
+                            ? ref _progCoeffs[compIndex]![by * mxx * hi + bx]
+                            : ref scratch);
 
                         if (ah != 0)
                         {
@@ -219,10 +224,7 @@ internal sealed partial class Decoder
                         }
 
                         if (_progressive)
-                        {
-                            _progCoeffs[compIndex]![by * mxx * hi + bx] = b;
                             continue;
-                        }
                         ReconstructBlock(ref b, bx, by, compIndex);
                     }
                 }
@@ -361,6 +363,12 @@ internal sealed partial class Decoder
             by *= v;
         }
 
+        if (_imgRgb != null)
+        {
+            WriteRgbBlock(ref b, bx, by, compIndex, h, v);
+            return;
+        }
+
         int stride;
         Span<byte> dst;
         if (_nComp == 1)
@@ -419,6 +427,74 @@ internal sealed partial class Decoder
             int yStride = y * stride;
             for (int x = 0; x < 8; x++)
                 dst[yStride + x] = (byte)Math.Clamp(b[y8 + x] + 128, 0, 255);
+        }
+    }
+
+    private void WriteRgbBlock(ref Block b, int bx, int by, int compIndex, int expandH, int expandV)
+    {
+        var pix = _imgRgb!.Pix.Span;
+        int rgbaStride = _imgRgb.Stride;
+        int channel = compIndex;
+
+        if (expandH != 0 || expandV != 0)
+        {
+            for (int y = 0; y < 8; y++)
+            {
+                int y8 = y * 8;
+                int yv = y * expandV;
+                for (int x = 0; x < 8; x++)
+                {
+                    byte val = (byte)Math.Clamp(b[y8 + x] + 128, 0, 255);
+                    int xh = x * expandH;
+                    for (int yy = 0; yy < expandV; yy++)
+                    {
+                        for (int xx = 0; xx < expandH; xx++)
+                        {
+                            int px = 8 * bx + xh + xx;
+                            int py = 8 * by + yv + yy;
+                            int o = py * rgbaStride + px * 4 + channel;
+                            pix[o] = val;
+                            if (compIndex == 0)
+                                pix[o + 3] = 255;
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        int hScale = compIndex == 0 ? 1 : _rgbHScale;
+        int vScale = compIndex == 0 ? 1 : _rgbVScale;
+        for (int y = 0; y < 8; y++)
+        {
+            int y8 = y * 8;
+            for (int x = 0; x < 8; x++)
+            {
+                byte val = (byte)Math.Clamp(b[y8 + x] + 128, 0, 255);
+                if (compIndex == 0)
+                {
+                    int px = 8 * bx + x;
+                    int py = 8 * by + y;
+                    int o = py * rgbaStride + px * 4;
+                    pix[o] = val;
+                    pix[o + 3] = 255;
+                }
+                else
+                {
+                    int cx = 8 * bx + x;
+                    int cy = 8 * by + y;
+                    int ix0 = cx * hScale;
+                    int iy0 = cy * vScale;
+                    for (int yy = 0; yy < vScale; yy++)
+                    {
+                        for (int xx = 0; xx < hScale; xx++)
+                        {
+                            int o = (iy0 + yy) * rgbaStride + (ix0 + xx) * 4 + channel;
+                            pix[o] = val;
+                        }
+                    }
+                }
+            }
         }
     }
 

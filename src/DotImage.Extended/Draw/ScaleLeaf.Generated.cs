@@ -177,7 +177,7 @@ namespace DotImage.Extended.Draw
                 int dy = (int)s2d[5];
                 if ((double)dx == s2d[2] && (double)dy == s2d[5])
                 {
-                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.X + dy), src, sr, op, opts);
+                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.Y + dy), src, sr, op, opts);
                     return;
                 }
             }
@@ -369,7 +369,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -420,7 +420,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -473,7 +473,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -526,7 +526,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -579,7 +579,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -611,7 +611,7 @@ namespace DotImage.Extended.Draw
                     int pi = (sr.Min.Y + (int)sy-src.Rect.Min.Y)*src.YStride + (sr.Min.X + (int)sx-src.Rect.Min.X);
                     int pj = ( sr.Min.Y + (int)sy    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + (int)sx    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -643,7 +643,7 @@ namespace DotImage.Extended.Draw
                     int pi = (sr.Min.Y + (int)sy-src.Rect.Min.Y)*src.YStride + (sr.Min.X + (int)sx-src.Rect.Min.X);
                     int pj = ( sr.Min.Y + (int)sy    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + (int)sx)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -675,7 +675,7 @@ namespace DotImage.Extended.Draw
                     int pi = (sr.Min.Y + (int)sy-src.Rect.Min.Y)*src.YStride + (sr.Min.X + (int)sx-src.Rect.Min.X);
                     int pj = ((sr.Min.Y + (int)sy)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + (int)sx)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -707,7 +707,7 @@ namespace DotImage.Extended.Draw
                     int pi = (sr.Min.Y + (int)sy-src.Rect.Min.Y)*src.YStride + (sr.Min.X + (int)sx-src.Rect.Min.X);
                     int pj = ((sr.Min.Y + (int)sy)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + (int)sx    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -735,14 +735,14 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     int pi = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int pj = ( sy0    - src.Rect.Min.Y  )*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -769,14 +769,14 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     int pi = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int pj = ( sy0    - src.Rect.Min.Y  )*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -803,14 +803,14 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     int pi = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int pj = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -837,14 +837,14 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     int pi = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int pj = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int pyy1 = src.Y.Span[pi] * 0x10101;
                     int pcb1 = src.Cb.Span[pj] - 128;
                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -894,7 +894,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -939,7 +939,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -964,7 +964,7 @@ namespace DotImage.Extended.Draw
                 int d = (dr.Min.Y+dy-dst.Rect.Min.Y)*dst.Stride + (dr.Min.X+adr.Min.X-dst.Rect.Min.X)*4;
                 for (int dx = adr.Min.X; dx < adr.Max.X; dx++, d += 4) { 
                     ulong sx = (2UL * (ulong)dx + 1) * sw / dw2;
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).GetRgba();
                     uint pa1 = (0xffffu - pa) * 0x101u;
                     dst.Pix.Span[d + 0] = (byte)(((uint)dst.Pix.Span[d + 0] * pa1 / 0xffff + pr) >> 8);
                     dst.Pix.Span[d + 1] = (byte)(((uint)dst.Pix.Span[d + 1] * pa1 / 0xffff + pg) >> 8);
@@ -984,11 +984,11 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).GetRgba();
                     uint pa1 = (0xffffu - pa) * 0x101u;
                     dst.Pix.Span[d + 0] = (byte)(((uint)dst.Pix.Span[d + 0] * pa1 / 0xffff + pr) >> 8);
                     dst.Pix.Span[d + 1] = (byte)(((uint)dst.Pix.Span[d + 1] * pa1 / 0xffff + pg) >> 8);
@@ -1010,7 +1010,7 @@ namespace DotImage.Extended.Draw
                 int d = (dr.Min.Y+dy-dst.Rect.Min.Y)*dst.Stride + (dr.Min.X+adr.Min.X-dst.Rect.Min.X)*4;
                 for (int dx = adr.Min.X; dx < adr.Max.X; dx++, d += 4) { 
                     ulong sx = (2UL * (ulong)dx + 1) * sw / dw2;
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).GetRgba();
                     dst.Pix.Span[d + 0] = (byte)(pr >> 8);
                     dst.Pix.Span[d + 1] = (byte)(pg >> 8);
                     dst.Pix.Span[d + 2] = (byte)(pb >> 8);
@@ -1029,11 +1029,11 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).GetRgba();
                     dst.Pix.Span[d + 0] = (byte)(pr >> 8);
                     dst.Pix.Span[d + 1] = (byte)(pg >> 8);
                     dst.Pix.Span[d + 2] = (byte)(pb >> 8);
@@ -1061,13 +1061,13 @@ namespace DotImage.Extended.Draw
                     Rgba64 p = src.Rgba64At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     uint pa1 = 0xffffu - p.A;
@@ -1091,20 +1091,20 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     Rgba64 p = src.Rgba64At(sx0, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     uint pa1 = 0xffffu - p.A;
@@ -1133,13 +1133,13 @@ namespace DotImage.Extended.Draw
                     Rgba64 p = src.Rgba64At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                         uint pa1 = 0xffff - ma;
                         dstColorRGBA64 = new Rgba64((ushort)((uint)dstAt.R * pa1 / 0xffff + p.R), (ushort)((uint)dstAt.G * pa1 / 0xffff + p.G), (ushort)((uint)dstAt.B * pa1 / 0xffff + p.B), (ushort)((uint)dstAt.A * pa1 / 0xffff + p.A));
@@ -1167,20 +1167,20 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
                     Rgba64 p = src.Rgba64At(sx0, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                         uint pa1 = 0xffff - ma;
                         dstColorRGBA64 = new Rgba64((ushort)((uint)dstAt.R * pa1 / 0xffff + p.R), (ushort)((uint)dstAt.G * pa1 / 0xffff + p.G), (ushort)((uint)dstAt.B * pa1 / 0xffff + p.B), (ushort)((uint)dstAt.A * pa1 / 0xffff + p.A));
@@ -1210,19 +1210,19 @@ namespace DotImage.Extended.Draw
                 ulong sy = (2UL * (ulong)dy + 1) * sh / dh2;
                 for (int dx = adr.Min.X; dx < adr.Max.X; dx++) { 
                     ulong sx = (2UL * (ulong)dx + 1) * sw / dw2;
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
                         pa = pa * ma / 0xffff;
                     }
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1249,23 +1249,23 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
                         pa = pa * ma / 0xffff;
                     }
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1294,10 +1294,10 @@ namespace DotImage.Extended.Draw
                 ulong sy = (2UL * (ulong)dy + 1) * sh / dh2;
                 for (int dx = adr.Min.X; dx < adr.Max.X; dx++) { 
                     ulong sx = (2UL * (ulong)dx + 1) * sw / dw2;
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sr.Min.X + (int)sx, sr.Min.Y + (int)sy).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + (int)sx, smp.Y + sr.Min.Y + (int)sy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1305,8 +1305,8 @@ namespace DotImage.Extended.Draw
                     }
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1338,14 +1338,14 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
-                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).Rgba();
+                    (uint pr, uint pg, uint pb, uint pa) = src.At(sx0, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1353,8 +1353,8 @@ namespace DotImage.Extended.Draw
                     }
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -1534,7 +1534,7 @@ namespace DotImage.Extended.Draw
                 int dy = (int)s2d[5];
                 if ((double)dx == s2d[2] && (double)dy == s2d[5])
                 {
-                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.X + dy), src, sr, op, opts);
+                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.Y + dy), src, sr, op, opts);
                     return;
                 }
             }
@@ -1782,7 +1782,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -1979,7 +1979,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -2211,7 +2211,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -2443,7 +2443,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -2675,7 +2675,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -2839,7 +2839,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s00j = ( sr.Min.Y + sy0    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -2855,7 +2855,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s10j = ( sr.Min.Y + sy0    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -2874,7 +2874,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s01j = ( sr.Min.Y + sy1    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -2890,7 +2890,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s11j = ( sr.Min.Y + sy1    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -2976,7 +2976,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s00j = ( sr.Min.Y + sy0    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -2992,7 +2992,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s10j = ( sr.Min.Y + sy0    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3011,7 +3011,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s01j = ( sr.Min.Y + sy1    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3027,7 +3027,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s11j = ( sr.Min.Y + sy1    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3113,7 +3113,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s00j = ((sr.Min.Y + sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3129,7 +3129,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s10j = ((sr.Min.Y + sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3148,7 +3148,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s01j = ((sr.Min.Y + sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3164,7 +3164,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s11j = ((sr.Min.Y + sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3250,7 +3250,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s00j = ((sr.Min.Y + sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3266,7 +3266,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sr.Min.Y + sy0-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s10j = ((sr.Min.Y + sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3285,7 +3285,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx0-src.Rect.Min.X);
                     int s01j = ((sr.Min.Y + sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3301,7 +3301,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sr.Min.Y + sy1-src.Rect.Min.Y)*src.YStride + (sr.Min.X + sx1-src.Rect.Min.X);
                     int s11j = ((sr.Min.Y + sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3341,7 +3341,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -3391,7 +3391,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s00j = ( sy0    - src.Rect.Min.Y  )*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3407,7 +3407,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sy0-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s10j = ( sy0    - src.Rect.Min.Y  )*src.CStride + ( sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3426,7 +3426,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sy1-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s01j = ( sy1    - src.Rect.Min.Y  )*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3442,7 +3442,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sy1-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s11j = ( sy1    - src.Rect.Min.Y  )*src.CStride + ( sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3481,7 +3481,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -3531,7 +3531,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s00j = ( sy0    - src.Rect.Min.Y  )*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3547,7 +3547,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sy0-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s10j = ( sy0    - src.Rect.Min.Y  )*src.CStride + ((sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3566,7 +3566,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sy1-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s01j = ( sy1    - src.Rect.Min.Y  )*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3582,7 +3582,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sy1-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s11j = ( sy1    - src.Rect.Min.Y  )*src.CStride + ((sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3621,7 +3621,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -3671,7 +3671,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s00j = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3687,7 +3687,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sy0-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s10j = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ((sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3706,7 +3706,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sy1-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s01j = ((sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ((sx0)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3722,7 +3722,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sy1-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s11j = ((sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ((sx1)/2 - src.Rect.Min.X/2);
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3761,7 +3761,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -3811,7 +3811,7 @@ namespace DotImage.Extended.Draw
                     int s00i = (sy0-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s00j = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s00yy1 = src.Y.Span[s00i] * 0x10101;
                     int s00cb1 = src.Cb.Span[s00j] - 128;
                     int s00cr1 = src.Cr.Span[s00j] - 128;
@@ -3827,7 +3827,7 @@ namespace DotImage.Extended.Draw
                     int s10i = (sy0-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s10j = ((sy0)/2 - src.Rect.Min.Y/2)*src.CStride + ( sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s10yy1 = src.Y.Span[s10i] * 0x10101;
                     int s10cb1 = src.Cb.Span[s10j] - 128;
                     int s10cr1 = src.Cr.Span[s10j] - 128;
@@ -3846,7 +3846,7 @@ namespace DotImage.Extended.Draw
                     int s01i = (sy1-src.Rect.Min.Y)*src.YStride + (sx0-src.Rect.Min.X);
                     int s01j = ((sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ( sx0    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s01yy1 = src.Y.Span[s01i] * 0x10101;
                     int s01cb1 = src.Cb.Span[s01j] - 128;
                     int s01cr1 = src.Cr.Span[s01j] - 128;
@@ -3862,7 +3862,7 @@ namespace DotImage.Extended.Draw
                     int s11i = (sy1-src.Rect.Min.Y)*src.YStride + (sx1-src.Rect.Min.X);
                     int s11j = ((sy1)/2 - src.Rect.Min.Y/2)*src.CStride + ( sx1    - src.Rect.Min.X  );
 
-                    // This is an inline version of the YCbCr.Rgba() conversion.
+                    // This is an inline version of the YCbCr.GetRgba() conversion.
                     int s11yy1 = src.Y.Span[s11i] * 0x10101;
                     int s11cb1 = src.Cb.Span[s11j] - 128;
                     int s11cr1 = src.Cr.Span[s11j] - 128;
@@ -3998,7 +3998,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -4192,7 +4192,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -4334,12 +4334,12 @@ namespace DotImage.Extended.Draw
                         xFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).GetRgba();
                     double s00r = (double)s00ru;
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).GetRgba();
                     double s10r = (double)s10ru;
                     double s10g = (double)s10gu;
                     double s10b = (double)s10bu;
@@ -4348,12 +4348,12 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).GetRgba();
                     double s01r = (double)s01ru;
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).GetRgba();
                     double s11r = (double)s11ru;
                     double s11g = (double)s11gu;
                     double s11b = (double)s11bu;
@@ -4389,7 +4389,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -4436,12 +4436,12 @@ namespace DotImage.Extended.Draw
                         yFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).GetRgba();
                     double s00r = (double)s00ru;
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).GetRgba();
                     double s10r = (double)s10ru;
                     double s10g = (double)s10gu;
                     double s10b = (double)s10bu;
@@ -4450,12 +4450,12 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).GetRgba();
                     double s01r = (double)s01ru;
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).GetRgba();
                     double s11r = (double)s11ru;
                     double s11g = (double)s11gu;
                     double s11b = (double)s11bu;
@@ -4535,12 +4535,12 @@ namespace DotImage.Extended.Draw
                         xFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).GetRgba();
                     double s00r = (double)s00ru;
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).GetRgba();
                     double s10r = (double)s10ru;
                     double s10g = (double)s10gu;
                     double s10b = (double)s10bu;
@@ -4549,12 +4549,12 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).GetRgba();
                     double s01r = (double)s01ru;
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).GetRgba();
                     double s11r = (double)s11ru;
                     double s11g = (double)s11gu;
                     double s11b = (double)s11bu;
@@ -4589,7 +4589,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -4636,12 +4636,12 @@ namespace DotImage.Extended.Draw
                         yFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).GetRgba();
                     double s00r = (double)s00ru;
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).GetRgba();
                     double s10r = (double)s10ru;
                     double s10g = (double)s10gu;
                     double s10b = (double)s10bu;
@@ -4650,12 +4650,12 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).GetRgba();
                     double s01r = (double)s01ru;
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).GetRgba();
                     double s11r = (double)s11ru;
                     double s11g = (double)s11gu;
                     double s11b = (double)s11bu;
@@ -4741,7 +4741,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s00u = src.Rgba64At(sr.Min.X + sx0, sr.Min.Y + sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s00u = new Rgba64((ushort)((uint)s00u.R * ma / 0xffff), (ushort)((uint)s00u.G * ma / 0xffff), (ushort)((uint)s00u.B * ma / 0xffff), (ushort)((uint)s00u.A * ma / 0xffff));
                     }
                     double s00r = (double)s00u.R;
@@ -4751,7 +4751,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s10u = src.Rgba64At(sr.Min.X + sx1, sr.Min.Y + sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s10u = new Rgba64((ushort)((uint)s10u.R * ma / 0xffff), (ushort)((uint)s10u.G * ma / 0xffff), (ushort)((uint)s10u.B * ma / 0xffff), (ushort)((uint)s10u.A * ma / 0xffff));
                     }
                     double s10r = (double)s10u.R;
@@ -4765,7 +4765,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s01u = src.Rgba64At(sr.Min.X + sx0, sr.Min.Y + sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s01u = new Rgba64((ushort)((uint)s01u.R * ma / 0xffff), (ushort)((uint)s01u.G * ma / 0xffff), (ushort)((uint)s01u.B * ma / 0xffff), (ushort)((uint)s01u.A * ma / 0xffff));
                     }
                     double s01r = (double)s01u.R;
@@ -4775,7 +4775,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s11u = src.Rgba64At(sr.Min.X + sx1, sr.Min.Y + sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s11u = new Rgba64((ushort)((uint)s11u.R * ma / 0xffff), (ushort)((uint)s11u.G * ma / 0xffff), (ushort)((uint)s11u.B * ma / 0xffff), (ushort)((uint)s11u.A * ma / 0xffff));
                     }
                     double s11r = (double)s11u.R;
@@ -4794,7 +4794,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     uint pa1 = 0xffffu - p.A;
@@ -4818,7 +4818,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -4868,7 +4868,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s00u = src.Rgba64At(sx0, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         s00u = new Rgba64((ushort)((uint)s00u.R * ma / 0xffff), (ushort)((uint)s00u.G * ma / 0xffff), (ushort)((uint)s00u.B * ma / 0xffff), (ushort)((uint)s00u.A * ma / 0xffff));
                     }
                     double s00r = (double)s00u.R;
@@ -4878,7 +4878,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s10u = src.Rgba64At(sx1, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).GetRgba();
                         s10u = new Rgba64((ushort)((uint)s10u.R * ma / 0xffff), (ushort)((uint)s10u.G * ma / 0xffff), (ushort)((uint)s10u.B * ma / 0xffff), (ushort)((uint)s10u.A * ma / 0xffff));
                     }
                     double s10r = (double)s10u.R;
@@ -4892,7 +4892,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s01u = src.Rgba64At(sx0, sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).GetRgba();
                         s01u = new Rgba64((ushort)((uint)s01u.R * ma / 0xffff), (ushort)((uint)s01u.G * ma / 0xffff), (ushort)((uint)s01u.B * ma / 0xffff), (ushort)((uint)s01u.A * ma / 0xffff));
                     }
                     double s01r = (double)s01u.R;
@@ -4902,7 +4902,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s11u = src.Rgba64At(sx1, sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).GetRgba();
                         s11u = new Rgba64((ushort)((uint)s11u.R * ma / 0xffff), (ushort)((uint)s11u.G * ma / 0xffff), (ushort)((uint)s11u.B * ma / 0xffff), (ushort)((uint)s11u.A * ma / 0xffff));
                     }
                     double s11r = (double)s11u.R;
@@ -4921,7 +4921,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                     }
                     uint pa1 = 0xffffu - p.A;
@@ -4992,7 +4992,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s00u = src.Rgba64At(sr.Min.X + sx0, sr.Min.Y + sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s00u = new Rgba64((ushort)((uint)s00u.R * ma / 0xffff), (ushort)((uint)s00u.G * ma / 0xffff), (ushort)((uint)s00u.B * ma / 0xffff), (ushort)((uint)s00u.A * ma / 0xffff));
                     }
                     double s00r = (double)s00u.R;
@@ -5002,7 +5002,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s10u = src.Rgba64At(sr.Min.X + sx1, sr.Min.Y + sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s10u = new Rgba64((ushort)((uint)s10u.R * ma / 0xffff), (ushort)((uint)s10u.G * ma / 0xffff), (ushort)((uint)s10u.B * ma / 0xffff), (ushort)((uint)s10u.A * ma / 0xffff));
                     }
                     double s10r = (double)s10u.R;
@@ -5016,7 +5016,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s01u = src.Rgba64At(sr.Min.X + sx0, sr.Min.Y + sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s01u = new Rgba64((ushort)((uint)s01u.R * ma / 0xffff), (ushort)((uint)s01u.G * ma / 0xffff), (ushort)((uint)s01u.B * ma / 0xffff), (ushort)((uint)s01u.A * ma / 0xffff));
                     }
                     double s01r = (double)s01u.R;
@@ -5026,7 +5026,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s11u = src.Rgba64At(sr.Min.X + sx1, sr.Min.Y + sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s11u = new Rgba64((ushort)((uint)s11u.R * ma / 0xffff), (ushort)((uint)s11u.G * ma / 0xffff), (ushort)((uint)s11u.B * ma / 0xffff), (ushort)((uint)s11u.A * ma / 0xffff));
                     }
                     double s11r = (double)s11u.R;
@@ -5045,7 +5045,7 @@ namespace DotImage.Extended.Draw
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                         uint pa1 = 0xffff - ma;
                         dstColorRGBA64 = new Rgba64((ushort)((uint)dstAt.R * pa1 / 0xffff + p.R), (ushort)((uint)dstAt.G * pa1 / 0xffff + p.G), (ushort)((uint)dstAt.B * pa1 / 0xffff + p.B), (ushort)((uint)dstAt.A * pa1 / 0xffff + p.A));
@@ -5073,7 +5073,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -5123,7 +5123,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s00u = src.Rgba64At(sx0, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         s00u = new Rgba64((ushort)((uint)s00u.R * ma / 0xffff), (ushort)((uint)s00u.G * ma / 0xffff), (ushort)((uint)s00u.B * ma / 0xffff), (ushort)((uint)s00u.A * ma / 0xffff));
                     }
                     double s00r = (double)s00u.R;
@@ -5133,7 +5133,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s10u = src.Rgba64At(sx1, sy0);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).GetRgba();
                         s10u = new Rgba64((ushort)((uint)s10u.R * ma / 0xffff), (ushort)((uint)s10u.G * ma / 0xffff), (ushort)((uint)s10u.B * ma / 0xffff), (ushort)((uint)s10u.A * ma / 0xffff));
                     }
                     double s10r = (double)s10u.R;
@@ -5147,7 +5147,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s01u = src.Rgba64At(sx0, sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).GetRgba();
                         s01u = new Rgba64((ushort)((uint)s01u.R * ma / 0xffff), (ushort)((uint)s01u.G * ma / 0xffff), (ushort)((uint)s01u.B * ma / 0xffff), (ushort)((uint)s01u.A * ma / 0xffff));
                     }
                     double s01r = (double)s01u.R;
@@ -5157,7 +5157,7 @@ namespace DotImage.Extended.Draw
                     Rgba64 s11u = src.Rgba64At(sx1, sy1);
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).GetRgba();
                         s11u = new Rgba64((ushort)((uint)s11u.R * ma / 0xffff), (ushort)((uint)s11u.G * ma / 0xffff), (ushort)((uint)s11u.B * ma / 0xffff), (ushort)((uint)s11u.A * ma / 0xffff));
                     }
                     double s11r = (double)s11u.R;
@@ -5176,7 +5176,7 @@ namespace DotImage.Extended.Draw
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         p = new Rgba64((ushort)((uint)p.R * ma / 0xffff), (ushort)((uint)p.G * ma / 0xffff), (ushort)((uint)p.B * ma / 0xffff), (ushort)((uint)p.A * ma / 0xffff));
                         uint pa1 = 0xffff - ma;
                         dstColorRGBA64 = new Rgba64((ushort)((uint)dstAt.R * pa1 / 0xffff + p.R), (ushort)((uint)dstAt.G * pa1 / 0xffff + p.G), (ushort)((uint)dstAt.B * pa1 / 0xffff + p.B), (ushort)((uint)dstAt.A * pa1 / 0xffff + p.A));
@@ -5248,10 +5248,10 @@ namespace DotImage.Extended.Draw
                         xFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s00ru = s00ru * ma / 0xffff;
                         s00gu = s00gu * ma / 0xffff;
                         s00bu = s00bu * ma / 0xffff;
@@ -5261,10 +5261,10 @@ namespace DotImage.Extended.Draw
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s10ru = s10ru * ma / 0xffff;
                         s10gu = s10gu * ma / 0xffff;
                         s10bu = s10bu * ma / 0xffff;
@@ -5278,10 +5278,10 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s01ru = s01ru * ma / 0xffff;
                         s01gu = s01gu * ma / 0xffff;
                         s01bu = s01bu * ma / 0xffff;
@@ -5291,10 +5291,10 @@ namespace DotImage.Extended.Draw
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s11ru = s11ru * ma / 0xffff;
                         s11gu = s11gu * ma / 0xffff;
                         s11bu = s11bu * ma / 0xffff;
@@ -5316,10 +5316,10 @@ namespace DotImage.Extended.Draw
                     uint pg = (uint)s11g;
                     uint pb = (uint)s11b;
                     uint pa = (uint)s11a;
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -5346,7 +5346,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -5393,10 +5393,10 @@ namespace DotImage.Extended.Draw
                         yFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         s00ru = s00ru * ma / 0xffff;
                         s00gu = s00gu * ma / 0xffff;
                         s00bu = s00bu * ma / 0xffff;
@@ -5406,10 +5406,10 @@ namespace DotImage.Extended.Draw
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).GetRgba();
                         s10ru = s10ru * ma / 0xffff;
                         s10gu = s10gu * ma / 0xffff;
                         s10bu = s10bu * ma / 0xffff;
@@ -5423,10 +5423,10 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).GetRgba();
                         s01ru = s01ru * ma / 0xffff;
                         s01gu = s01gu * ma / 0xffff;
                         s01bu = s01bu * ma / 0xffff;
@@ -5436,10 +5436,10 @@ namespace DotImage.Extended.Draw
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).GetRgba();
                         s11ru = s11ru * ma / 0xffff;
                         s11gu = s11gu * ma / 0xffff;
                         s11bu = s11bu * ma / 0xffff;
@@ -5461,10 +5461,10 @@ namespace DotImage.Extended.Draw
                     uint pg = (uint)s11g;
                     uint pb = (uint)s11b;
                     uint pa = (uint)s11a;
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -5535,10 +5535,10 @@ namespace DotImage.Extended.Draw
                         xFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s00ru = s00ru * ma / 0xffff;
                         s00gu = s00gu * ma / 0xffff;
                         s00bu = s00bu * ma / 0xffff;
@@ -5548,10 +5548,10 @@ namespace DotImage.Extended.Draw
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy0).GetRgba();
                         s10ru = s10ru * ma / 0xffff;
                         s10gu = s10gu * ma / 0xffff;
                         s10bu = s10bu * ma / 0xffff;
@@ -5565,10 +5565,10 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sr.Min.X + sx0, sr.Min.Y + sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx0, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s01ru = s01ru * ma / 0xffff;
                         s01gu = s01gu * ma / 0xffff;
                         s01bu = s01bu * ma / 0xffff;
@@ -5578,10 +5578,10 @@ namespace DotImage.Extended.Draw
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sr.Min.X + sx1, sr.Min.Y + sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + sx1, smp.Y + sr.Min.Y + sy1).GetRgba();
                         s11ru = s11ru * ma / 0xffff;
                         s11gu = s11gu * ma / 0xffff;
                         s11bu = s11bu * ma / 0xffff;
@@ -5605,8 +5605,8 @@ namespace DotImage.Extended.Draw
                     uint pa = (uint)s11a;
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -5638,7 +5638,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -5685,10 +5685,10 @@ namespace DotImage.Extended.Draw
                         yFrac1 = 0;
                     }
 
-                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).Rgba();
+                    (uint s00ru, uint s00gu, uint s00bu, uint s00au) = src.At(sx0, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy0).GetRgba();
                         s00ru = s00ru * ma / 0xffff;
                         s00gu = s00gu * ma / 0xffff;
                         s00bu = s00bu * ma / 0xffff;
@@ -5698,10 +5698,10 @@ namespace DotImage.Extended.Draw
                     double s00g = (double)s00gu;
                     double s00b = (double)s00bu;
                     double s00a = (double)s00au;
-                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).Rgba();
+                    (uint s10ru, uint s10gu, uint s10bu, uint s10au) = src.At(sx1, sy0).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy0).GetRgba();
                         s10ru = s10ru * ma / 0xffff;
                         s10gu = s10gu * ma / 0xffff;
                         s10bu = s10bu * ma / 0xffff;
@@ -5715,10 +5715,10 @@ namespace DotImage.Extended.Draw
                     s10g = xFrac1 * s00g + xFrac0 * s10g;
                     s10b = xFrac1 * s00b + xFrac0 * s10b;
                     s10a = xFrac1 * s00a + xFrac0 * s10a;
-                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).Rgba();
+                    (uint s01ru, uint s01gu, uint s01bu, uint s01au) = src.At(sx0, sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx0, smp.Y + sy1).GetRgba();
                         s01ru = s01ru * ma / 0xffff;
                         s01gu = s01gu * ma / 0xffff;
                         s01bu = s01bu * ma / 0xffff;
@@ -5728,10 +5728,10 @@ namespace DotImage.Extended.Draw
                     double s01g = (double)s01gu;
                     double s01b = (double)s01bu;
                     double s01a = (double)s01au;
-                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).Rgba();
+                    (uint s11ru, uint s11gu, uint s11bu, uint s11au) = src.At(sx1, sy1).GetRgba();
                     if (srcMask != null)
                     {
-                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).Rgba();
+                        (_, _, _, uint ma) = srcMask.At(smp.X + sx1, smp.Y + sy1).GetRgba();
                         s11ru = s11ru * ma / 0xffff;
                         s11gu = s11gu * ma / 0xffff;
                         s11bu = s11bu * ma / 0xffff;
@@ -5755,8 +5755,8 @@ namespace DotImage.Extended.Draw
                     uint pa = (uint)s11a;
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr = pr * ma / 0xffff;
                         pg = pg * ma / 0xffff;
                         pb = pb * ma / 0xffff;
@@ -5971,7 +5971,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6093,7 +6093,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6228,7 +6228,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6358,7 +6358,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6493,7 +6493,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6623,7 +6623,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6704,7 +6704,7 @@ namespace DotImage.Extended.Draw
                                     int pi = (ky-src.Rect.Min.Y)*src.YStride + (kx-src.Rect.Min.X);
                                     int pj = ( ky    - src.Rect.Min.Y  )*src.CStride + ( kx    - src.Rect.Min.X  );
 
-                                    // This is an inline version of the YCbCr.Rgba() conversion.
+                                    // This is an inline version of the YCbCr.GetRgba() conversion.
                                     int pyy1 = src.Y.Span[pi] * 0x10101;
                                     int pcb1 = src.Cb.Span[pj] - 128;
                                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -6756,7 +6756,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6837,7 +6837,7 @@ namespace DotImage.Extended.Draw
                                     int pi = (ky-src.Rect.Min.Y)*src.YStride + (kx-src.Rect.Min.X);
                                     int pj = ( ky    - src.Rect.Min.Y  )*src.CStride + ((kx)/2 - src.Rect.Min.X/2);
 
-                                    // This is an inline version of the YCbCr.Rgba() conversion.
+                                    // This is an inline version of the YCbCr.GetRgba() conversion.
                                     int pyy1 = src.Y.Span[pi] * 0x10101;
                                     int pcb1 = src.Cb.Span[pj] - 128;
                                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -6889,7 +6889,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -6970,7 +6970,7 @@ namespace DotImage.Extended.Draw
                                     int pi = (ky-src.Rect.Min.Y)*src.YStride + (kx-src.Rect.Min.X);
                                     int pj = ((ky)/2 - src.Rect.Min.Y/2)*src.CStride + ((kx)/2 - src.Rect.Min.X/2);
 
-                                    // This is an inline version of the YCbCr.Rgba() conversion.
+                                    // This is an inline version of the YCbCr.GetRgba() conversion.
                                     int pyy1 = src.Y.Span[pi] * 0x10101;
                                     int pcb1 = src.Cb.Span[pj] - 128;
                                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -7022,7 +7022,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7103,7 +7103,7 @@ namespace DotImage.Extended.Draw
                                     int pi = (ky-src.Rect.Min.Y)*src.YStride + (kx-src.Rect.Min.X);
                                     int pj = ((ky)/2 - src.Rect.Min.Y/2)*src.CStride + ( kx    - src.Rect.Min.X  );
 
-                                    // This is an inline version of the YCbCr.Rgba() conversion.
+                                    // This is an inline version of the YCbCr.GetRgba() conversion.
                                     int pyy1 = src.Y.Span[pi] * 0x10101;
                                     int pcb1 = src.Cb.Span[pj] - 128;
                                     int pcr1 = src.Cr.Span[pj] - 128;
@@ -7156,7 +7156,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7287,7 +7287,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7413,7 +7413,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7491,7 +7491,7 @@ namespace DotImage.Extended.Draw
                                 double w = xWeights[kx - ix] * yWeight;
                                 if (w != 0)
                                 {
-                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).Rgba();
+                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).GetRgba();
                                     pr += (double)pru * w;
                                     pg += (double)pgu * w;
                                     pb += (double)pbu * w;
@@ -7544,7 +7544,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7622,7 +7622,7 @@ namespace DotImage.Extended.Draw
                                 double w = xWeights[kx - ix] * yWeight;
                                 if (w != 0)
                                 {
-                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).Rgba();
+                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).GetRgba();
                                     pr += (double)pru * w;
                                     pg += (double)pgu * w;
                                     pb += (double)pbu * w;
@@ -7674,7 +7674,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7755,7 +7755,7 @@ namespace DotImage.Extended.Draw
                                     Rgba64 pu = src.Rgba64At(kx, ky);
                                     if (srcMask != null)
                                     {
-                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).Rgba();
+                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).GetRgba();
                                         pu = new Rgba64((ushort)((uint)pu.R * ma / 0xffff), (ushort)((uint)pu.G * ma / 0xffff), (ushort)((uint)pu.B * ma / 0xffff), (ushort)((uint)pu.A * ma / 0xffff));
                                     }
                                     pr += (double)pu.R * w;
@@ -7776,7 +7776,7 @@ namespace DotImage.Extended.Draw
                     uint pa0 = ScaleImpl.Fffftou(pa);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr0 = pr0 * ma / 0xffff;
                         pg0 = pg0 * ma / 0xffff;
                         pb0 = pb0 * ma / 0xffff;
@@ -7821,7 +7821,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -7902,7 +7902,7 @@ namespace DotImage.Extended.Draw
                                     Rgba64 pu = src.Rgba64At(kx, ky);
                                     if (srcMask != null)
                                     {
-                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).Rgba();
+                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).GetRgba();
                                         pu = new Rgba64((ushort)((uint)pu.R * ma / 0xffff), (ushort)((uint)pu.G * ma / 0xffff), (ushort)((uint)pu.B * ma / 0xffff), (ushort)((uint)pu.A * ma / 0xffff));
                                     }
                                     pr += (double)pu.R * w;
@@ -7919,7 +7919,7 @@ namespace DotImage.Extended.Draw
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         uint pr0 = ScaleImpl.Fffftou(pr) * ma / 0xffff;
                         uint pg0 = ScaleImpl.Fffftou(pg) * ma / 0xffff;
                         uint pb0 = ScaleImpl.Fffftou(pb) * ma / 0xffff;
@@ -7969,7 +7969,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -8047,10 +8047,10 @@ namespace DotImage.Extended.Draw
                                 double w = xWeights[kx - ix] * yWeight;
                                 if (w != 0)
                                 {
-                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).Rgba();
+                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).GetRgba();
                                     if (srcMask != null)
                                     {
-                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).Rgba();
+                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).GetRgba();
                                         pru = pru * ma / 0xffff;
                                         pgu = pgu * ma / 0xffff;
                                         pbu = pbu * ma / 0xffff;
@@ -8067,14 +8067,14 @@ namespace DotImage.Extended.Draw
                     if (pr > pa) { pr = pa; }
                     if (pg > pa) { pg = pa; }
                     if (pb > pa) { pb = pa; }
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     uint pr0 = ScaleImpl.Fffftou(pr);
                     uint pg0 = ScaleImpl.Fffftou(pg);
                     uint pb0 = ScaleImpl.Fffftou(pb);
                     uint pa0 = ScaleImpl.Fffftou(pa);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr0 = pr0 * ma / 0xffff;
                         pg0 = pg0 * ma / 0xffff;
                         pb0 = pb0 * ma / 0xffff;
@@ -8119,7 +8119,7 @@ namespace DotImage.Extended.Draw
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -8197,10 +8197,10 @@ namespace DotImage.Extended.Draw
                                 double w = xWeights[kx - ix] * yWeight;
                                 if (w != 0)
                                 {
-                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).Rgba();
+                                    (uint pru, uint pgu, uint pbu, uint pau) = src.At(kx, ky).GetRgba();
                                     if (srcMask != null)
                                     {
-                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).Rgba();
+                                        (_, _, _, uint ma) = srcMask.At(smp.X + kx, smp.Y + ky).GetRgba();
                                         pru = pru * ma / 0xffff;
                                         pgu = pgu * ma / 0xffff;
                                         pbu = pbu * ma / 0xffff;
@@ -8219,8 +8219,8 @@ namespace DotImage.Extended.Draw
                     if (pb > pa) { pb = pa; }
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         uint pr0 = ScaleImpl.Fffftou(pr) * ma / 0xffff;
                         uint pg0 = ScaleImpl.Fffftou(pg) * ma / 0xffff;
                         uint pb0 = ScaleImpl.Fffftou(pb) * ma / 0xffff;
@@ -8350,6 +8350,9 @@ namespace DotImage.Extended.Draw
                             case ITargetRgba64Image d:
                                 ScaleY_Rgba64_Over(d, dr, adr, tmp, o);
                                 break;
+                            case NrgbaImage d:
+                                ScaleY_Nrgba_Over(d, dr, adr, tmp, o);
+                                break;
                             default:
                                 ScaleY_Image_Over(dst, dr, adr, tmp, o);
                                 break;
@@ -8363,6 +8366,9 @@ namespace DotImage.Extended.Draw
                                 break;
                             case ITargetRgba64Image d:
                                 ScaleY_Rgba64_Src(d, dr, adr, tmp, o);
+                                break;
+                            case NrgbaImage d:
+                                ScaleY_Nrgba_Src(d, dr, adr, tmp, o);
                                 break;
                             default:
                                 ScaleY_Image_Src(dst, dr, adr, tmp, o);
@@ -8477,7 +8483,7 @@ namespace DotImage.Extended.Draw
                         int pi = (sr.Min.Y + y-src.Rect.Min.Y)*src.YStride + (sr.Min.X + cc.Coord-src.Rect.Min.X);
                         int pj = ( sr.Min.Y + y    - src.Rect.Min.Y  )*src.CStride + ( sr.Min.X + cc.Coord    - src.Rect.Min.X  );
 
-                        // This is an inline version of the YCbCr.Rgba() conversion.
+                        // This is an inline version of the YCbCr.GetRgba() conversion.
                         int pyy1 = src.Y.Span[pi] * 0x10101;
                         int pcb1 = src.Cb.Span[pj] - 128;
                         int pcr1 = src.Cr.Span[pj] - 128;
@@ -8515,7 +8521,7 @@ namespace DotImage.Extended.Draw
                         int pi = (sr.Min.Y + y-src.Rect.Min.Y)*src.YStride + (sr.Min.X + cc.Coord-src.Rect.Min.X);
                         int pj = ( sr.Min.Y + y    - src.Rect.Min.Y  )*src.CStride + ((sr.Min.X + cc.Coord)/2 - src.Rect.Min.X/2);
 
-                        // This is an inline version of the YCbCr.Rgba() conversion.
+                        // This is an inline version of the YCbCr.GetRgba() conversion.
                         int pyy1 = src.Y.Span[pi] * 0x10101;
                         int pcb1 = src.Cb.Span[pj] - 128;
                         int pcr1 = src.Cr.Span[pj] - 128;
@@ -8553,7 +8559,7 @@ namespace DotImage.Extended.Draw
                         int pi = (sr.Min.Y + y-src.Rect.Min.Y)*src.YStride + (sr.Min.X + cc.Coord-src.Rect.Min.X);
                         int pj = ((sr.Min.Y + y)/2 - src.Rect.Min.Y/2)*src.CStride + ((sr.Min.X + cc.Coord)/2 - src.Rect.Min.X/2);
 
-                        // This is an inline version of the YCbCr.Rgba() conversion.
+                        // This is an inline version of the YCbCr.GetRgba() conversion.
                         int pyy1 = src.Y.Span[pi] * 0x10101;
                         int pcb1 = src.Cb.Span[pj] - 128;
                         int pcr1 = src.Cr.Span[pj] - 128;
@@ -8591,7 +8597,7 @@ namespace DotImage.Extended.Draw
                         int pi = (sr.Min.Y + y-src.Rect.Min.Y)*src.YStride + (sr.Min.X + cc.Coord-src.Rect.Min.X);
                         int pj = ((sr.Min.Y + y)/2 - src.Rect.Min.Y/2)*src.CStride + ( sr.Min.X + cc.Coord    - src.Rect.Min.X  );
 
-                        // This is an inline version of the YCbCr.Rgba() conversion.
+                        // This is an inline version of the YCbCr.GetRgba() conversion.
                         int pyy1 = src.Y.Span[pi] * 0x10101;
                         int pcb1 = src.Cb.Span[pj] - 128;
                         int pcr1 = src.Cr.Span[pj] - 128;
@@ -8631,7 +8637,7 @@ namespace DotImage.Extended.Draw
                         Rgba64 pu = src.Rgba64At(sr.Min.X + cc.Coord, sr.Min.Y + y);
                         if (srcMask != null)
                         {
-                            (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + cc.Coord, smp.Y + sr.Min.Y + y).Rgba();
+                            (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + cc.Coord, smp.Y + sr.Min.Y + y).GetRgba();
                             pu = new Rgba64((ushort)((uint)pu.R * ma / 0xffff), (ushort)((uint)pu.G * ma / 0xffff), (ushort)((uint)pu.B * ma / 0xffff), (ushort)((uint)pu.A * ma / 0xffff));
                         }
                         pr += (double)pu.R * cc.Weight;
@@ -8662,10 +8668,10 @@ namespace DotImage.Extended.Draw
                     for (int ci = b.I; ci < b.J; ci++)
                     {
                         var cc = Horizontal.Contribs[ci];
-                        (uint pru, uint pgu, uint pbu, uint pau) = src.At(sr.Min.X + cc.Coord, sr.Min.Y + y).Rgba();
+                        (uint pru, uint pgu, uint pbu, uint pau) = src.At(sr.Min.X + cc.Coord, sr.Min.Y + y).GetRgba();
                         if (srcMask != null)
                         {
-                            (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + cc.Coord, smp.Y + sr.Min.Y + y).Rgba();
+                            (_, _, _, uint ma) = srcMask.At(smp.X + sr.Min.X + cc.Coord, smp.Y + sr.Min.Y + y).GetRgba();
                             pru = pru * ma / 0xffff;
                             pgu = pgu * ma / 0xffff;
                             pbu = pbu * ma / 0xffff;
@@ -8779,7 +8785,7 @@ namespace DotImage.Extended.Draw
                     uint pa0 = ScaleImpl.Ftou(pa * b.InvTotalWeight);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr0 = pr0 * ma / 0xffff;
                         pg0 = pg0 * ma / 0xffff;
                         pb0 = pb0 * ma / 0xffff;
@@ -8817,7 +8823,7 @@ namespace DotImage.Extended.Draw
                     if (dstMask != null)
                     {
                         Rgba64 dstAt = dst.Rgba64At(dr.Min.X + dx, dr.Min.Y + dy);
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         uint pr0 = ScaleImpl.Ftou(pr * b.InvTotalWeight) * ma / 0xffff;
                         uint pg0 = ScaleImpl.Ftou(pg * b.InvTotalWeight) * ma / 0xffff;
                         uint pb0 = ScaleImpl.Ftou(pb * b.InvTotalWeight) * ma / 0xffff;
@@ -8831,6 +8837,69 @@ namespace DotImage.Extended.Draw
                         dstColorRGBA64 = new Rgba64(ScaleImpl.Ftou(pr * b.InvTotalWeight), ScaleImpl.Ftou(pg * b.InvTotalWeight), ScaleImpl.Ftou(pb * b.InvTotalWeight), ScaleImpl.Ftou(pa * b.InvTotalWeight));
                         dst.SetRgba64(dr.Min.X + dx, dr.Min.Y + dy, dstColorRGBA64);
                     }
+                }
+            }
+        }
+        internal void ScaleY_Nrgba_Over(NrgbaImage dst, Rect dr, Rect adr, double[] tmp, Options o)
+        {
+            for (int dx = adr.Min.X; dx < adr.Max.X; dx++)
+            {
+                int d = (dr.Min.Y+adr.Min.Y-dst.Rect.Min.Y)*dst.Stride + (dr.Min.X+dx-dst.Rect.Min.X)*4;
+                for (int dy = adr.Min.Y; dy < adr.Max.Y; dy++)
+                {
+                    var b = Vertical.Sources[dy];
+                    double pr = 0, pg = 0, pb = 0, pa = 0;
+                    for (int ci = b.I; ci < b.J; ci++)
+                    {
+                        var cc = Vertical.Contribs[ci];
+                        int t4 = (cc.Coord * Dw + dx) * 4;
+                        pr += tmp[t4 + 0] * cc.Weight;
+                        pg += tmp[t4 + 1] * cc.Weight;
+                        pb += tmp[t4 + 2] * cc.Weight;
+                        pa += tmp[t4 + 3] * cc.Weight;
+                    }
+                    if (pr > pa) { pr = pa; }
+                    if (pg > pa) { pg = pa; }
+                    if (pb > pa) { pb = pa; }
+                    uint pr0 = ScaleImpl.Ftou(pr * b.InvTotalWeight);
+                    uint pg0 = ScaleImpl.Ftou(pg * b.InvTotalWeight);
+                    uint pb0 = ScaleImpl.Ftou(pb * b.InvTotalWeight);
+                    uint pa0 = ScaleImpl.Ftou(pa * b.InvTotalWeight);
+                    uint pa1 = (0xffff - pa0) * 0x101;
+                    dst.Pix.Span[d + 0] = (byte)(((uint)dst.Pix.Span[d + 0] * pa1 / 0xffff + pr0) >> 8);
+                    dst.Pix.Span[d + 1] = (byte)(((uint)dst.Pix.Span[d + 1] * pa1 / 0xffff + pg0) >> 8);
+                    dst.Pix.Span[d + 2] = (byte)(((uint)dst.Pix.Span[d + 2] * pa1 / 0xffff + pb0) >> 8);
+                    dst.Pix.Span[d + 3] = (byte)(((uint)dst.Pix.Span[d + 3] * pa1 / 0xffff + pa0) >> 8);
+                    d += dst.Stride;
+                }
+            }
+        }
+        internal void ScaleY_Nrgba_Src(NrgbaImage dst, Rect dr, Rect adr, double[] tmp, Options o)
+        {
+            for (int dx = adr.Min.X; dx < adr.Max.X; dx++)
+            {
+                int d = (dr.Min.Y+adr.Min.Y-dst.Rect.Min.Y)*dst.Stride + (dr.Min.X+dx-dst.Rect.Min.X)*4;
+                for (int dy = adr.Min.Y; dy < adr.Max.Y; dy++)
+                {
+                    var b = Vertical.Sources[dy];
+                    double pr = 0, pg = 0, pb = 0, pa = 0;
+                    for (int ci = b.I; ci < b.J; ci++)
+                    {
+                        var cc = Vertical.Contribs[ci];
+                        int t4 = (cc.Coord * Dw + dx) * 4;
+                        pr += tmp[t4 + 0] * cc.Weight;
+                        pg += tmp[t4 + 1] * cc.Weight;
+                        pb += tmp[t4 + 2] * cc.Weight;
+                        pa += tmp[t4 + 3] * cc.Weight;
+                    }
+                    if (pr > pa) { pr = pa; }
+                    if (pg > pa) { pg = pa; }
+                    if (pb > pa) { pb = pa; }
+                    dst.Pix.Span[d + 0] = (byte)(ScaleImpl.Ftou(pr * b.InvTotalWeight) >> 8);
+                    dst.Pix.Span[d + 1] = (byte)(ScaleImpl.Ftou(pg * b.InvTotalWeight) >> 8);
+                    dst.Pix.Span[d + 2] = (byte)(ScaleImpl.Ftou(pb * b.InvTotalWeight) >> 8);
+                    dst.Pix.Span[d + 3] = (byte)(ScaleImpl.Ftou(pa * b.InvTotalWeight) >> 8);
+                    d += dst.Stride;
                 }
             }
         }
@@ -8857,14 +8926,14 @@ namespace DotImage.Extended.Draw
                     if (pr > pa) { pr = pa; }
                     if (pg > pa) { pg = pa; }
                     if (pb > pa) { pb = pa; }
-                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
+                    (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
                     uint pr0 = ScaleImpl.Ftou(pr * b.InvTotalWeight);
                     uint pg0 = ScaleImpl.Ftou(pg * b.InvTotalWeight);
                     uint pb0 = ScaleImpl.Ftou(pb * b.InvTotalWeight);
                     uint pa0 = ScaleImpl.Ftou(pa * b.InvTotalWeight);
                     if (dstMask != null)
                     {
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         pr0 = pr0 * ma / 0xffff;
                         pg0 = pg0 * ma / 0xffff;
                         pb0 = pb0 * ma / 0xffff;
@@ -8901,8 +8970,8 @@ namespace DotImage.Extended.Draw
                     if (pb > pa) { pb = pa; }
                     if (dstMask != null)
                     {
-                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).Rgba();
-                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).Rgba();
+                        (uint qr, uint qg, uint qb, uint qa) = dst.At(dr.Min.X + dx, dr.Min.Y + dy).GetRgba();
+                        (_, _, _, uint ma) = dstMask.At(dmp.X + dr.Min.X + dx, dmp.Y + dr.Min.Y + dy).GetRgba();
                         uint pr0 = ScaleImpl.Ftou(pr * b.InvTotalWeight) * ma / 0xffff;
                         uint pg0 = ScaleImpl.Ftou(pg * b.InvTotalWeight) * ma / 0xffff;
                         uint pb0 = ScaleImpl.Ftou(pb * b.InvTotalWeight) * ma / 0xffff;

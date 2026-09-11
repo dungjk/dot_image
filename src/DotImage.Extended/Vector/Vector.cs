@@ -44,10 +44,7 @@ public class Rasterizer
     /// NewRasterizer returns a new Rasterizer whose rendered mask image is bounded
     /// by the given width and height.
     /// </summary>
-    public static Rasterizer NewRasterizer(int w, int h)
-    {
-        return new Rasterizer(w, h);
-    }
+    public static Rasterizer NewRasterizer(int w, int h) => new(w, h);
 
     /// <summary>
     /// Reset resets a Rasterizer as if it was just returned by NewRasterizer.
@@ -225,7 +222,7 @@ public class Rasterizer
     {
         if (src is UniformImage u)
         {
-            var (srcR, srcG, srcB, srcA) = u.Rgba();
+            var (srcR, srcG, srcB, srcA) = u.GetRgba();
             switch (dst)
             {
                 case AlphaImage alphaDst:
@@ -420,11 +417,11 @@ public class Rasterizer
         {
             for (int x = 0; x < xMax; x++)
             {
-                var (sr, sg, sb, sa) = src.At(sp.X + x, sp.Y + y).Rgba();
+                var (sr, sg, sb, sa) = src.At(sp.X + x, sp.Y + y).GetRgba();
                 uint ma = bufU32[y * size.X + x];
 
                 // This algorithm comes from the standard library's image/draw package.
-                var (dr, dg, db, da) = dst.At(r.Min.X + x, r.Min.Y + y).Rgba();
+                var (dr, dg, db, da) = dst.At(r.Min.X + x, r.Min.Y + y).GetRgba();
                 uint a = 0xffff - (sa * ma / 0xffff);
                 outColor = new Rgba64(
                     (ushort)((dr * a + sr * ma) / 0xffff),
@@ -447,7 +444,7 @@ public class Rasterizer
         {
             for (int x = 0; x < xMax; x++)
             {
-                var (sr, sg, sb, sa) = src.At(sp.X + x, sp.Y + y).Rgba();
+                var (sr, sg, sb, sa) = src.At(sp.X + x, sp.Y + y).GetRgba();
                 uint ma = bufU32[y * size.X + x];
 
                 // This algorithm comes from the standard library's image/draw package.

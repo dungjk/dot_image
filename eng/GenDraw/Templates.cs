@@ -77,7 +77,7 @@ public static partial class Generator
                 int dy = (int)s2d[5];
                 if ((double)dx == s2d[2] && (double)dy == s2d[5])
                 {
-                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.X + dy), src, sr, op, opts);
+                    ScaleOps.Copy(dst, new Point(sr.Min.X + dx, sr.Min.Y + dy), src, sr, op, opts);
                     return;
                 }
             }
@@ -169,7 +169,7 @@ public static partial class Generator
                     double dxf = dr.Min.X + dx + 0.5;
                     int sx0 = (int)(d2s[0] * dxf + d2s[1] * dyf + d2s[2]) + bias.X;
                     int sy0 = (int)(d2s[3] * dxf + d2s[4] * dyf + d2s[5]) + bias.Y;
-                    if (!new Point(sx0, sy0).In(sr))
+                    if (!sr.Contains(sx0, sy0))
                     {
                         continue;
                     }
@@ -264,7 +264,7 @@ public static partial class Generator
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }
@@ -402,7 +402,7 @@ public static partial class Generator
             }
             else
             {
-                $switchD ScaleY_$dTypeRN_$op(dst, dr, adr, tmp, o)
+                $switchDK ScaleY_$dTypeRN_$op(dst, dr, adr, tmp, o)
             }
         }
 """;
@@ -563,7 +563,7 @@ public static partial class Generator
                     double dxf = dr.Min.X + dx + 0.5;
                     double sx = d2s[0] * dxf + d2s[1] * dyf + d2s[2];
                     double sy = d2s[3] * dxf + d2s[4] * dyf + d2s[5];
-                    if (!new Point((int)sx + bias.X, (int)sy + bias.Y).In(sr))
+                    if (!sr.Contains((int)sx + bias.X, (int)sy + bias.Y))
                     {
                         continue;
                     }

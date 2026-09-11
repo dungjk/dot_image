@@ -42,8 +42,8 @@ public class GifWriterTests
         {
             for (int x = b0.Min.X; x < b0.Max.X; x++)
             {
-                var (r0, g0, b0c, _) = m0.At(x, y).Rgba();
-                var (r1, g1, b1c, _) = m1.At(x - b0.Min.X + b1.Min.X, y - b0.Min.Y + b1.Min.Y).Rgba();
+                var (r0, g0, b0c, _) = m0.At(x, y).GetRgba();
+                var (r1, g1, b1c, _) = m1.At(x - b0.Min.X + b1.Min.X, y - b0.Min.Y + b1.Min.Y).GetRgba();
                 sum += Delta(r0, r1) + Delta(g0, g1) + Delta(b0c, b1c);
                 n += 3;
             }
@@ -90,20 +90,20 @@ public class GifWriterTests
         int n = Math.Min(p.Length, q.Length);
         for (int i = 0; i < n; i++)
         {
-            var (pr, pg, pb, pa) = p[i].Rgba();
-            var (qr, qg, qb, qa) = q[i].Rgba();
+            var (pr, pg, pb, pa) = p[i].GetRgba();
+            var (qr, qg, qb, qa) = q[i].GetRgba();
             if (pr != qr || pg != qg || pb != qb || pa != qa)
                 return false;
         }
         for (int i = n; i < p.Length; i++)
         {
-            var (r, g, b, a) = p[i].Rgba();
+            var (r, g, b, a) = p[i].GetRgba();
             if (r != 0 || g != 0 || b != 0 || a != 0xffff)
                 return false;
         }
         for (int i = n; i < q.Length; i++)
         {
-            var (r, g, b, a) = q[i].Rgba();
+            var (r, g, b, a) = q[i].GetRgba();
             if (r != 0 || g != 0 || b != 0 || a != 0xffff)
                 return false;
         }
@@ -272,8 +272,8 @@ public class GifWriterTests
         buf.Position = 0;
         var m = GifReader.Decode(buf);
         Assert.Equal(Geometry.Rect(0, 0, 6, 6), m.Bounds());
-        Assert.Equal(0x22u, m.At(0, 0).Rgba().R >> 8);
-        Assert.Equal(0x77u, m.At(5, 5).Rgba().R >> 8);
+        Assert.Equal(0x22u, m.At(0, 0).GetRgba().R >> 8);
+        Assert.Equal(0x77u, m.At(5, 5).GetRgba().R >> 8);
     }
 
     [Theory]

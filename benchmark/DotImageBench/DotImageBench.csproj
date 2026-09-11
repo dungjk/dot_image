@@ -22,5 +22,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="../../samples/DotImage.Samples/images/sample_640×426.jpeg" Link="images/sample_640×426.jpeg" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../samples/DotImage.Samples/images/sample_640×426.png" Link="images/sample_640×426.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

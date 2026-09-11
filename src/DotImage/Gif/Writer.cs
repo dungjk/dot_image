@@ -124,7 +124,7 @@ public static class GifWriter
             }
             else
             {
-                var (rr, gg, bb, _) = c.Rgba();
+                var (rr, gg, bb, _) = c.GetRgba();
                 r = (byte)(rr >> 8);
                 g = (byte)(gg >> 8);
                 b = (byte)(bb >> 8);
@@ -315,7 +315,7 @@ public static class GifWriter
                     _err = new InvalidOperationException("gif: cannot encode color table with nil entries");
                     return;
                 }
-                var (_, _, _, a) = c.Rgba();
+                var (_, _, _, a) = c.GetRgba();
                 if (a == 0)
                 {
                     transparentIndex = i;
@@ -380,14 +380,14 @@ public static class GifWriter
                 int dx = b.Dx();
                 if (dx == pm.Stride)
                 {
-                    try { lzww.Write(pm.Pix.Span.Slice(0, dx * b.Dy()).ToArray()); }
+                    try { lzww.Write(pm.Pix.Span.Slice(0, dx * b.Dy())); }
                     catch (Exception ex) { _err = ex; return; }
                 }
                 else
                 {
                     for (int y = b.Min.Y, i = 0; y < b.Max.Y; i += pm.Stride, y++)
                     {
-                        try { lzww.Write(pm.Pix.Span.Slice(i, dx).ToArray()); }
+                        try { lzww.Write(pm.Pix.Span.Slice(i, dx)); }
                         catch (Exception ex) { _err = ex; return; }
                     }
                 }

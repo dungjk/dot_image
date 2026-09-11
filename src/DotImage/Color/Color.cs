@@ -15,7 +15,7 @@ public interface IColor
     /// by a uint so that multiplying by a blend factor up to 0xffff will not
     /// overflow.
     /// </summary>
-    (uint R, uint G, uint B, uint A) Rgba();
+    (uint R, uint G, uint B, uint A) GetRgba();
 }
 
 /// <summary>
@@ -43,16 +43,12 @@ public readonly struct Rgba(byte r, byte g, byte b, byte a) : IColor
     public byte B { get; } = b;
     public byte A { get; } = a;
 
-    (uint R, uint G, uint B, uint A) IColor.Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
-        uint r = R;
-        r |= r << 8;
-        uint g = G;
-        g |= g << 8;
-        uint b = B;
-        b |= b << 8;
-        uint a = A;
-        a |= a << 8;
+        uint r = R; r |= r << 8;
+        uint g = G; g |= g << 8;
+        uint b = B; b |= b << 8;
+        uint a = A; a |= a << 8;
         return (r, g, b, a);
     }
 }
@@ -68,7 +64,7 @@ public readonly struct Rgba64(ushort r, ushort g, ushort b, ushort a) : IColor
     public ushort B { get; } = b;
     public ushort A { get; } = a;
 
-    public (uint R, uint G, uint B, uint A) Rgba() => (R, G, B, A);
+    public (uint R, uint G, uint B, uint A) GetRgba() => (R, G, B, A);
 }
 
 /// <summary>
@@ -81,7 +77,7 @@ public readonly struct Nrgba(byte r, byte g, byte b, byte a) : IColor
     public byte B { get; } = b;
     public byte A { get; } = a;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint r = R;
         r |= r << 8;
@@ -112,7 +108,7 @@ public readonly struct Nrgba64(ushort r, ushort g, ushort b, ushort a) : IColor
     public ushort B { get; } = b;
     public ushort A { get; } = a;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint r = R;
         r *= A;
@@ -135,7 +131,7 @@ public readonly struct Alpha(byte a) : IColor
 {
     public byte A { get; } = a;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint a = A;
         a |= a << 8;
@@ -150,7 +146,7 @@ public readonly struct Alpha16(ushort a) : IColor
 {
     public ushort A { get; } = a;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint a = A;
         return (a, a, a, a);
@@ -164,7 +160,7 @@ public readonly struct Gray(byte y) : IColor
 {
     public byte Y { get; } = y;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint y = Y;
         y |= y << 8;
@@ -179,7 +175,7 @@ public readonly struct Gray16(ushort y) : IColor
 {
     public ushort Y { get; } = y;
 
-    public (uint R, uint G, uint B, uint A) Rgba()
+    public (uint R, uint G, uint B, uint A) GetRgba()
     {
         uint y = Y;
         return (y, y, y, 0xffff);
@@ -220,7 +216,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, uint a) = c.Rgba();
+        (uint r, uint g, uint b, uint a) = c.GetRgba();
         return new Rgba((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8), (byte)(a >> 8));
     }
 
@@ -231,7 +227,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, uint a) = c.Rgba();
+        (uint r, uint g, uint b, uint a) = c.GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
@@ -242,7 +238,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, uint a) = c.Rgba();
+        (uint r, uint g, uint b, uint a) = c.GetRgba();
         if (a == 0xffff)
         {
             return new Nrgba((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8), 0xff);
@@ -266,7 +262,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, uint a) = c.Rgba();
+        (uint r, uint g, uint b, uint a) = c.GetRgba();
         if (a == 0xffff)
         {
             return new Nrgba64((ushort)r, (ushort)g, (ushort)b, 0xffff);
@@ -290,7 +286,7 @@ public static class ColorModels
             return c;
         }
 
-        (_, _, _, uint a) = c.Rgba();
+        (_, _, _, uint a) = c.GetRgba();
         return new Alpha((byte)(a >> 8));
     }
 
@@ -301,7 +297,7 @@ public static class ColorModels
             return c;
         }
 
-        (_, _, _, uint a) = c.Rgba();
+        (_, _, _, uint a) = c.GetRgba();
         return new Alpha16((ushort)a);
     }
 
@@ -312,7 +308,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, _) = c.Rgba();
+        (uint r, uint g, uint b, _) = c.GetRgba();
         uint y = (19595 * r + 38470 * g + 7471 * b + (1 << 15)) >> 24;
         return new Gray((byte)y);
     }
@@ -324,7 +320,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, _) = c.Rgba();
+        (uint r, uint g, uint b, _) = c.GetRgba();
         uint y = (19595 * r + 38470 * g + 7471 * b + (1 << 15)) >> 16;
         return new Gray16((ushort)y);
     }
@@ -336,7 +332,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, _) = c.Rgba();
+        (uint r, uint g, uint b, _) = c.GetRgba();
         (byte y, byte cb, byte cr) = YCbCrUtil.RGBToYCbCr((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8));
         return new YCbCr(y, cb, cr);
     }
@@ -351,7 +347,7 @@ public static class ColorModels
                 return new NYCbCrA(ycbcr, 0xff);
         }
 
-        (uint r, uint g, uint b, uint a) = c.Rgba();
+        (uint r, uint g, uint b, uint a) = c.GetRgba();
 
         if (a != 0)
         {
@@ -371,7 +367,7 @@ public static class ColorModels
             return c;
         }
 
-        (uint r, uint g, uint b, _) = c.Rgba();
+        (uint r, uint g, uint b, _) = c.GetRgba();
         (byte cc, byte mm, byte yy, byte kk) = YCbCrUtil.RGBToCMYK((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8));
         return new Cmyk(cc, mm, yy, kk);
     }
@@ -427,12 +423,12 @@ public class Palette : IModel
     /// </summary>
     public int Index(IColor c)
     {
-        (uint cr, uint cg, uint cb, uint ca) = c.Rgba();
+        (uint cr, uint cg, uint cb, uint ca) = c.GetRgba();
         int ret = 0;
         uint bestSum = uint.MaxValue;
         for (int i = 0; i < _colors.Length; i++)
         {
-            (uint vr, uint vg, uint vb, uint va) = _colors[i].Rgba();
+            (uint vr, uint vg, uint vb, uint va) = _colors[i].GetRgba();
             uint sum = ColorUtil.SqDiff(cr, vr) + ColorUtil.SqDiff(cg, vg) + ColorUtil.SqDiff(cb, vb) + ColorUtil.SqDiff(ca, va);
             if (sum < bestSum)
             {

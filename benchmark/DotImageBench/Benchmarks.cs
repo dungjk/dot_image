@@ -1,7 +1,10 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using DotImage;
+using DotImage.Draw;
+using DotImage.Extended.Draw;
 using DotImage.Jpeg;
+using DotImage.Png;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -39,6 +42,34 @@ public class JpegDecodeBench
 [SimpleJob(RuntimeMoniker.Net80, baseline: true)]
 [SimpleJob(RuntimeMoniker.Net10_0)]
 [MemoryDiagnoser]
+public class PngDecodeBench
+{
+    private byte[] _png = Array.Empty<byte>();
+
+    [GlobalSetup]
+    public void Setup() => _png = Bench.LoadPng();
+
+    [Benchmark]
+    public IImage DotImage()
+    {
+        using var ms = new MemoryStream(_png);
+        return PngReader.Decode(ms);
+    }
+
+    [Benchmark]
+    public ImageSharpImage SixLabors() => Image.Load<Rgba32>(_png);
+
+    [Benchmark]
+    public SKBitmap SkiaSharp()
+    {
+        using var data = SKData.CreateCopy(_png);
+        return SKBitmap.Decode(data);
+    }
+}
+
+[SimpleJob(RuntimeMoniker.Net80, baseline: true)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
+[MemoryDiagnoser]
 public class ResizeBench
 {
     private NrgbaImage _dot = null!;
@@ -56,7 +87,12 @@ public class ResizeBench
     }
 
     [Benchmark]
-    public NrgbaImage DotImage() => Bench.BicubicScale(_dot, Bench.TargetWidth, Bench.TargetHeight);
+    public NrgbaImage DotImage()
+    {
+        var dst = Images.NewNrgba(Geometry.Rect(0, 0, Bench.TargetWidth, Bench.TargetHeight));
+        Interpolators.ApproxBiLinear.Scale(dst, dst.Bounds(), _dot, _dot.Bounds(), Op.Src, null);
+        return dst;
+    }
 
     [Benchmark]
     public ImageSharpImage SixLabors() => _sharp.Clone(x => x.Resize(new ResizeOptions

@@ -31,13 +31,13 @@ public sealed class YCbCrImage : IImage, IRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = YCbCrAt(x, y).Rgba();
+        var (r, g, b, a) = YCbCrAt(x, y).GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public YCbCr YCbCrAt(int x, int y)
     {
-        if (!new Point(x, y).In(Rect)) return new YCbCr(0, 0, 0);
+        if (!Rect.Contains(x, y)) return new YCbCr(0, 0, 0);
         int yi = YOffset(x, y);
         int ci = COffset(x, y);
         return new YCbCr(Y.Span[yi], Cb.Span[ci], Cr.Span[ci]);
@@ -45,6 +45,15 @@ public sealed class YCbCrImage : IImage, IRgba64Image
 
     public int YOffset(int x, int y) =>
         (y - this.Rect.Min.Y) * YStride + (x - this.Rect.Min.X);
+
+    public Span<byte> YRowSpan(int y) =>
+        Y.Span.Slice((y - Rect.Min.Y) * YStride, Rect.Dx());
+
+    public void ProcessYRows(PixelRowCallback process)
+    {
+        for (int y = Rect.Min.Y; y < Rect.Max.Y; y++)
+            process(y, YRowSpan(y));
+    }
 
     public int COffset(int x, int y)
     {
@@ -99,13 +108,13 @@ public sealed class NYCbCrAImage : IImage, IRgba64Image
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = NYCbCrAAt(x, y).Rgba();
+        var (r, g, b, a) = NYCbCrAAt(x, y).GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public NYCbCrA NYCbCrAAt(int x, int y)
     {
-        if (!new Point(x, y).In(YCbCrImage.Rect)) return new NYCbCrA(new YCbCr(0, 0, 0), 0);
+        if (!YCbCrImage.Rect.Contains(x, y)) return new NYCbCrA(new YCbCr(0, 0, 0), 0);
         int yi = YCbCrImage.YOffset(x, y);
         int ci = YCbCrImage.COffset(x, y);
         int ai = AOffset(x, y);
@@ -114,6 +123,16 @@ public sealed class NYCbCrAImage : IImage, IRgba64Image
 
     public int AOffset(int x, int y) =>
         (y - YCbCrImage.Rect.Min.Y) * AStride + (x - YCbCrImage.Rect.Min.X);
+
+    public Span<byte> ARowSpan(int y) =>
+        A.Span.Slice((y - YCbCrImage.Rect.Min.Y) * AStride, YCbCrImage.Rect.Dx());
+
+    public void ProcessARows(PixelRowCallback process)
+    {
+        var rect = YCbCrImage.Rect;
+        for (int y = rect.Min.Y; y < rect.Max.Y; y++)
+            process(y, ARowSpan(y));
+    }
 
     public IImage SubImage(Rect r)
     {

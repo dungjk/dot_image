@@ -24,8 +24,8 @@ public class PngWriterTests
         {
             for (int x = b0.Min.X; x < b0.Max.X; x++)
             {
-                var (r0, g0, b0c, a0) = m0.At(x, y).Rgba();
-                var (r1, g1, b1c, a1) = m1.At(x + dx, y + dy).Rgba();
+                var (r0, g0, b0c, a0) = m0.At(x, y).GetRgba();
+                var (r1, g1, b1c, a1) = m1.At(x + dx, y + dy).GetRgba();
                 if (r0 != r1 || g0 != g1 || b0c != b1c || a0 != a1)
                     return $"colors differ at ({x}, {y})";
             }

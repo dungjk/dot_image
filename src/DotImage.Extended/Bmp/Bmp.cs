@@ -88,7 +88,7 @@ public static class Bmp
                 palette = new byte[1024];
                 for (int i = 0; i < paletted.Palette.Length && i < 256; i++)
                 {
-                    (uint r, uint g, uint bl, _) = paletted.Palette[i].Rgba();
+                    (uint r, uint g, uint bl, _) = paletted.Palette[i].GetRgba();
                     palette[i * 4 + 0] = (byte)(bl >> 8);
                     palette[i * 4 + 1] = (byte)(g >> 8);
                     palette[i * 4 + 2] = (byte)(r >> 8);
@@ -650,7 +650,7 @@ public static class Bmp
             int off = 0;
             for (int x = b.Min.X; x < b.Max.X; x++)
             {
-                (uint r, uint g, uint bl, _) = m.At(x, y).Rgba();
+                (uint r, uint g, uint bl, _) = m.At(x, y).GetRgba();
                 buf[off + 2] = (byte)(r >> 8);
                 buf[off + 1] = (byte)(g >> 8);
                 buf[off + 0] = (byte)(bl >> 8);

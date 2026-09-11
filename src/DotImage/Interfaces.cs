@@ -23,6 +23,13 @@ public interface IImage
 {
     IColorModel ColorModel();
     Rect Bounds();
+
+    /// <summary>
+    /// Returns the color at (x, y). This convenience API boxes value-type colors and
+    /// performs per-pixel bounds checks. Prefer type-specific accessors (for example
+    /// <see cref="NrgbaImage.NrgbaAt"/>) or span-based row APIs (for example
+    /// <see cref="NrgbaImage.ProcessRows"/>) in performance-sensitive code.
+    /// </summary>
     IColor At(int x, int y);
 }
 

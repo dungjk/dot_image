@@ -13,4 +13,8 @@
   <Folder Name="/benchmark/">
     <Project Path="benchmark/DotImageBench/DotImageBench.csproj" />
   </Folder>
+  <Folder Name="/eng/">
+    <Project Path="eng/GenDraw/GenDraw.csproj" />>
+    <Project Path="eng/GenerateGoFont/GenerateGoFont.csproj" />>
+  </Folder>
 </Solution>

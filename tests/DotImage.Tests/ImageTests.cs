@@ -8,8 +8,8 @@ public class ImageTests
 {
     private static bool Cmp(IColorModel cm, IColor c0, IColor c1)
     {
-        var (r0, g0, b0, a0) = cm.Convert(c0).Rgba();
-        var (r1, g1, b1, a1) = cm.Convert(c1).Rgba();
+        var (r0, g0, b0, a0) = cm.Convert(c0).GetRgba();
+        var (r1, g1, b1, a1) = cm.Convert(c1).GetRgba();
         return r0 == r1 && g0 == g1 && b0 == b1 && a0 == a1;
     }
 
@@ -126,7 +126,7 @@ public class ImageTests
         foreach (var cm in testColorModels)
         {
             var c = cm.Convert(new Rgba64(0x1234, 0x1234, 0x1234, 0x1234));
-            var (r, _, _, _) = c.Rgba();
+            var (r, _, _, _) = c.GetRgba();
             Assert.Equal((uint)0x1234, r);
         }
 
@@ -140,7 +140,7 @@ public class ImageTests
         foreach (var m in testImages)
         {
             m.Set(1, 2, new Nrgba64(0xffff, 0xffff, 0xffff, 0x1357));
-            var (r, _, _, _) = m.At(1, 2).Rgba();
+            var (r, _, _, _) = m.At(1, 2).GetRgba();
             Assert.Equal((uint)0x1357, r);
         }
     }
@@ -198,7 +198,7 @@ public class ImageTests
             Assert.True(tc is IRgba64Image, $"{tc.GetType()} is not an IRgba64Image");
             var rgba64Image = (IRgba64Image)tc;
             var got = rgba64Image.Rgba64At(1, 1);
-            var (wantR, wantG, wantB, wantA) = tc.At(1, 1).Rgba();
+            var (wantR, wantG, wantB, wantA) = tc.At(1, 1).GetRgba();
             Assert.Equal((uint)wantR, (uint)got.R);
             Assert.Equal((uint)wantG, (uint)got.G);
             Assert.Equal((uint)wantB, (uint)got.B);
@@ -209,5 +209,44 @@ public class ImageTests
     private static void Memset(Memory<byte> memory, byte v)
     {
         memory.Span.Fill(v);
+    }
+
+    [Fact]
+    public void NrgbaImage_ProcessRows()
+    {
+        var img = Images.NewNrgba(Geometry.Rect(0, 0, 2, 2));
+        img.SetNrgba(0, 0, new Nrgba(10, 20, 30, 255));
+        img.SetNrgba(1, 0, new Nrgba(40, 50, 60, 255));
+        img.SetNrgba(0, 1, new Nrgba(70, 80, 90, 255));
+        img.SetNrgba(1, 1, new Nrgba(100, 110, 120, 255));
+
+        int rows = 0;
+        img.ProcessRows((y, row) =>
+        {
+            rows++;
+            Assert.Equal(8, row.Length);
+            Assert.Equal(y, rows - 1);
+            Assert.Equal((byte)(10 + 30 * (y == 1 ? 2 : 0)), row[0]);
+        });
+        Assert.Equal(2, rows);
+
+        var row0 = img.RowSpan(0);
+        row0[0] = 1;
+        Assert.Equal(new Nrgba(1, 20, 30, 255), img.NrgbaAt(0, 0));
+    }
+
+    [Fact]
+    public void YCbCrImage_ProcessYRows()
+    {
+        var img = YCbCrImages.NewYCbCr(Geometry.Rect(0, 0, 3, 2), YCbCrSubsampleRatio.Ratio444);
+        img.Y.Span.Fill(0x11);
+        img.ProcessYRows((y, row) =>
+        {
+            Assert.Equal(3, row.Length);
+            Assert.Equal(0x11, row[0]);
+            Assert.Equal(y, y);
+        });
+        img.YRowSpan(1)[1] = 0x22;
+        Assert.Equal(0x22, img.Y.Span[img.YOffset(1, 1)]);
     }
 }

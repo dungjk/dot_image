@@ -328,8 +328,8 @@ public class JpegWriterTests
         {
             for (int x = b.Min.X; x < b.Max.X; x++)
             {
-                (uint r0, uint g0, uint b0, _) = m0.At(x, y).Rgba();
-                (uint r1, uint g1, uint b1, _) = m1.At(x, y).Rgba();
+                (uint r0, uint g0, uint b0, _) = m0.At(x, y).GetRgba();
+                (uint r1, uint g1, uint b1, _) = m1.At(x, y).GetRgba();
                 sum += Delta(r0, r1) + Delta(g0, g1) + Delta(b0, b1);
                 n += 3;
             }
