@@ -1,24 +1,16 @@
 // Ported from Go src/image/jpeg/dct.go
 
 
+using System.Runtime.CompilerServices;
+
 namespace DotImage.Jpeg;
 
+[InlineArray(JpegConstants.BlockSize)]
 internal struct Block
 {
-    public int[] Data;
+    private int _element0;
 
-    public Block()
-    {
-        Data = new int[JpegConstants.BlockSize];
-    }
-
-    public int this[int i]
-    {
-        get => Data[i];
-        set => Data[i] = value;
-    }
-
-    public Block Clone() => new() { Data = (int[])Data.Clone() };
+    public Block Clone() => this;
 }
 
 internal static class Dct

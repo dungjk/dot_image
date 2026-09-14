@@ -85,6 +85,7 @@ public static class PngWriter
         private readonly byte[] _footer = new byte[4];
         private readonly byte[] _tmp = new byte[4 * 256];
         private readonly byte[][] _cr = new byte[NFilter][];
+        private readonly Crc32Hasher _crc = new();
         private byte[] _pr = [];
         private ZLibStream? _zw;
         private CompressionLevel _zwLevel = CompressionLevel.Optimal;
@@ -148,10 +149,10 @@ public static class PngWriter
             _header[5] = (byte)name[1];
             _header[6] = (byte)name[2];
             _header[7] = (byte)name[3];
-            var crc = new Crc32Hasher();
-            crc.Write(_header.AsSpan(4, 4));
-            crc.Write(b);
-            BinaryPrimitives.WriteUInt32BigEndian(_footer.AsSpan(0, 4), crc.Sum32());
+            _crc.Reset();
+            _crc.Write(_header.AsSpan(4, 4));
+            _crc.Write(b);
+            BinaryPrimitives.WriteUInt32BigEndian(_footer.AsSpan(0, 4), _crc.Sum32());
             try
             {
                 _w.Write(_header);
@@ -399,7 +400,7 @@ public static class PngWriter
                             {
                                 for (int x = b.Min.X; x < b.Max.X; x++)
                                 {
-                                    var (r, g, bl, _) = m.At(x, y).Rgba();
+                                    var (r, g, bl, _) = m.At(x, y).GetRgba();
                                     cr0[i++] = (byte)(r >> 8);
                                     cr0[i++] = (byte)(g >> 8);
                                     cr0[i++] = (byte)(bl >> 8);
@@ -503,7 +504,7 @@ public static class PngWriter
                         case CbTC16:
                             for (int x = b.Min.X; x < b.Max.X; x++)
                             {
-                                var (r, g, bl, _) = m.At(x, y).Rgba();
+                                var (r, g, bl, _) = m.At(x, y).GetRgba();
                                 _cr[0][i++] = (byte)(r >> 8);
                                 _cr[0][i++] = (byte)r;
                                 _cr[0][i++] = (byte)(g >> 8);

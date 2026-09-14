@@ -118,10 +118,78 @@ public class DrawTests
         public bool Opaque() => inner.Opaque();
     }
 
+    private sealed class SlowNrgba : IWritableImage, IRgba64Image, ISetRgba64Image
+    {
+        public Memory<byte> Pix = Memory<byte>.Empty;
+        public int Stride;
+        public Rect Rect;
+
+        public IColorModel ColorModel() => Models.Nrgba;
+        public Rect Bounds() => Rect;
+        public IColor At(int x, int y) => NrgbaAt(x, y);
+
+        public Nrgba NrgbaAt(int x, int y)
+        {
+            if (!new Point(x, y).In(Rect)) return new Nrgba(0, 0, 0, 0);
+            int i = PixOffset(x, y);
+            var s = Pix.Span.Slice(i, 4);
+            return new Nrgba(s[0], s[1], s[2], s[3]);
+        }
+
+        public Rgba64 Rgba64At(int x, int y)
+        {
+            var (r, g, b, a) = NrgbaAt(x, y).GetRgba();
+            return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
+        }
+
+        public void Set(int x, int y, IColor c)
+        {
+            if (!new Point(x, y).In(Rect)) return;
+            int i = PixOffset(x, y);
+            var c1 = (Nrgba)Models.Nrgba.Convert(c);
+            var s = Pix.Span.Slice(i, 4);
+            s[0] = c1.R;
+            s[1] = c1.G;
+            s[2] = c1.B;
+            s[3] = c1.A;
+        }
+
+        public void SetRgba64(int x, int y, Rgba64 c)
+        {
+            if (!new Point(x, y).In(Rect)) return;
+            uint r = c.R, g = c.G, b = c.B, a = c.A;
+            if (a != 0 && a != 0xffff)
+            {
+                r = r * 0xffff / a;
+                g = g * 0xffff / a;
+                b = b * 0xffff / a;
+            }
+            int i = PixOffset(x, y);
+            var s = Pix.Span.Slice(i, 4);
+            s[0] = (byte)(r >> 8);
+            s[1] = (byte)(g >> 8);
+            s[2] = (byte)(b >> 8);
+            s[3] = (byte)(a >> 8);
+        }
+
+        public int PixOffset(int x, int y) =>
+            (y - Rect.Min.Y) * Stride + (x - Rect.Min.X) * 4;
+
+        public IImage SubImage(Rect r)
+        {
+            r = r.Intersect(Rect);
+            if (r.Empty()) return new SlowNrgba();
+            int i = PixOffset(r.Min.X, r.Min.Y);
+            return new SlowNrgba { Pix = Pix.Slice(i), Stride = Stride, Rect = r };
+        }
+
+        public bool Opaque() => true;
+    }
+
     private static bool Eq(IColor c0, IColor c1)
     {
-        var (r0, g0, b0, a0) = c0.Rgba();
-        var (r1, g1, b1, a1) = c1.Rgba();
+        var (r0, g0, b0, a0) = c0.GetRgba();
+        var (r1, g1, b1, a1) = c1.GetRgba();
         return r0 == r1 && g0 == g1 && b0 == b1 && a0 == a1;
     }
 
@@ -155,6 +223,26 @@ public class DrawTests
         for (int y = 0; y < 16; y++)
             for (int x = 0; x < 16; x++)
                 m.Set(x, y, new Rgba(0, (byte)(y * 0x11), 0, (byte)alpha));
+        return m;
+    }
+
+    private static IImage VgradGreenNrgba64(int alpha)
+    {
+        var m = Images.NewNrgba64(Geometry.Rect(0, 0, 16, 16));
+        for (int y = 0; y < 16; y++)
+            for (int x = 0; x < 16; x++)
+                m.Set(x, y, new Nrgba64(0, (ushort)(y * 0x1111), 0, (ushort)(alpha * 0x101)));
+        return m;
+    }
+
+    private static NrgbaImage NewNrgbaField()
+    {
+        var m = Images.NewNrgba(Geometry.Rect(0, 0, 16, 16));
+        for (int y = 0; y < 16; y++)
+            for (int x = 0; x < 16; x++)
+                m.SetNrgba(x, y, new Nrgba(
+                    (byte)(x * 0x11), (byte)(y * 0x11),
+                    (byte)((x + y) * 0x4), (byte)(64 + y * 3)));
         return m;
     }
 
@@ -318,11 +406,11 @@ public class DrawTests
 
                 uint dr = 0, dg = 0, db = 0, da = 0;
                 if (op == Op.Over)
-                    (dr, dg, db, da) = dst.At(x, y).Rgba();
-                var (sr, sg, sbl, sa) = src.At(sx, sy).Rgba();
+                    (dr, dg, db, da) = dst.At(x, y).GetRgba();
+                var (sr, sg, sbl, sa) = src.At(sx, sy).GetRgba();
                 uint ma = M;
                 if (mask != null)
-                    (_, _, _, ma) = mask.At(mx, my).Rgba();
+                    (_, _, _, ma) = mask.At(mx, my).GetRgba();
                 uint a = M - (sa * ma / M);
                 golden.Set(x, y, new Rgba64(
                     (ushort)((dr * a + sr * ma) / M),
@@ -422,6 +510,143 @@ public class DrawTests
                                 $"drawOverlap xoff={xoff},yoff={yoff}: at ({x}, {y}), {dst.At(x, y)} versus golden {golden.At(x, y)}");
                         }
                     }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void DrawTypedRgbaFastPaths()
+    {
+        var sources = new Dictionary<string, IImage>
+        {
+            ["uniform"] = FillBlue(90),
+            ["rgba"] = VgradGreen(90),
+            ["nrgba"] = VgradGreenNrgba(90),
+            ["gray"] = VgradGray(),
+            ["nrgba64"] = VgradGreenNrgba64(90),
+        };
+        Rect full = Geometry.Rect(0, 0, 16, 16);
+        Rect[] rects =
+        [
+            Geometry.Rect(0, 0, 16, 16),
+            Geometry.Rect(3, 5, 12, 10),
+            Geometry.Rect(8, 8, 9, 9),
+        ];
+        foreach (Rect r in rects)
+        {
+            foreach (var (sName, src) in sources)
+            {
+                foreach (Op op in new[] { Op.Over, Op.Src })
+                {
+                    var mask = VgradAlpha(192);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        IWritableImage dst = (RgbaImage)HgradRed(255).SubImage(r);
+                        switch (i)
+                        {
+                            case 1:
+                                dst = ConvertToSlowerRgba(dst);
+                                break;
+                            case 2:
+                                dst = ConvertToSlowestRgba(dst);
+                                break;
+                        }
+
+                        IImage golden = MakeGolden(dst, full, src, default, mask, default, op);
+                        DrawOps.DrawMask(dst, full, src, default, mask, default, op);
+                        Rect b = dst.Bounds();
+                        for (int y = b.Min.Y; y < b.Max.Y; y++)
+                        {
+                            for (int x = b.Min.X; x < b.Max.X; x++)
+                            {
+                                Assert.True(Eq(dst.At(x, y), golden.At(x, y)),
+                                    $"drawTypedRgbaFastPaths r={r} src={sName} op={op} dst={dst.GetType().Name}: at ({x}, {y}), got {dst.At(x, y)} golden {golden.At(x, y)}");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void DrawNrgbaFastPaths()
+    {
+        var sources = new Dictionary<string, IImage>
+        {
+            ["uniform"] = FillBlue(90),
+            ["rgba"] = VgradGreen(90),
+            ["nrgba"] = VgradGreenNrgba(90),
+            ["gray"] = VgradGray(),
+        };
+        Rect full = Geometry.Rect(0, 0, 16, 16);
+        Rect[] rects =
+        [
+            Geometry.Rect(0, 0, 16, 16),
+            Geometry.Rect(3, 5, 12, 10),
+            Geometry.Rect(8, 8, 9, 9),
+        ];
+        foreach (Rect r in rects)
+        {
+            foreach (var (sName, src) in sources)
+            {
+                foreach (Op op in new[] { Op.Over, Op.Src })
+                {
+                    foreach (IImage? mask in new IImage?[] { null, VgradAlpha(192) })
+                    {
+                        string maskName = mask == null ? "nil" : mask.GetType().Name;
+                        if (src is NrgbaImage && op == Op.Src && mask == null)
+                            continue;
+
+                        var dst = (NrgbaImage)NewNrgbaField().SubImage(r);
+                        var refDst = new SlowNrgba { Pix = dst.Pix.ToArray(), Stride = dst.Stride, Rect = dst.Rect };
+
+                        DrawOps.DrawMask(dst, full, src, default, mask, default, op);
+                        DrawOps.DrawMask(refDst, full, src, default, mask, default, op);
+
+                        Rect b = dst.Bounds();
+                        var dpix = dst.Pix.Span;
+                        var rpix = refDst.Pix.Span;
+                        for (int y = b.Min.Y; y < b.Max.Y; y++)
+                        {
+                            for (int x = b.Min.X; x < b.Max.X; x++)
+                            {
+                                int di = dst.PixOffset(x, y);
+                                int ri = refDst.PixOffset(x, y);
+                                for (int k = 0; k < 4; k++)
+                                {
+                                    if (dpix[di + k] != rpix[ri + k])
+                                        Assert.Fail(
+                                            $"drawNrgbaFastPaths r={r} src={sName} op={op} mask={maskName}: " +
+                                            $"at ({x},{y}) ch {k}, got {dpix[di + k]} ref {rpix[ri + k]}");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    [Fact]
+    public void DrawNrgbaSrcCopyPreservesSourceBytes()
+    {
+        var dst = NewNrgbaField();
+        var src = (NrgbaImage)VgradGreenNrgba(90);
+        Rect b = src.Bounds();
+        DrawOps.DrawMask(dst, b, src, default, null, default, Op.Src);
+        var dpix = dst.Pix.Span;
+        var spix = src.Pix.Span;
+        for (int y = b.Min.Y; y < b.Max.Y; y++)
+        {
+            for (int x = b.Min.X; x < b.Max.X; x++)
+            {
+                int di = dst.PixOffset(x, y);
+                int si = src.PixOffset(x, y);
+                for (int k = 0; k < 4; k++)
+                {
+                    Assert.Equal(spix[si + k], dpix[di + k]);
                 }
             }
         }

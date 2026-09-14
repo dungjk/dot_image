@@ -15,9 +15,7 @@ public readonly struct Point(int x, int y)
     public Point Mul(int k) => new(X * k, Y * k);
     public Point Div(int k) => new(X / k, Y / k);
 
-    public bool In(Rect r) =>
-        r.Min.X <= X && X < r.Max.X &&
-        r.Min.Y <= Y && Y < r.Max.Y;
+    public bool In(Rect r) => r.Contains(X, Y);
 
     public Point Mod(Rect r)
     {
@@ -99,6 +97,9 @@ public readonly struct Rect(Point min, Point max) : IImage, IRgba64Image
 
     public bool Empty() => Min.X >= Max.X || Min.Y >= Max.Y;
 
+    public bool Contains(int x, int y) =>
+        x >= Min.X && x < Max.X && y >= Min.Y && y < Max.Y;
+
     public bool Eq(Rect s) => Equals(s) || (Empty() && s.Empty());
 
     public bool Overlaps(Rect s) =>
@@ -122,10 +123,10 @@ public readonly struct Rect(Point min, Point max) : IImage, IRgba64Image
     }
 
     public IColor At(int x, int y) =>
-        new Point(x, y).In(this) ? Colors.Opaque : Colors.Transparent;
+        Contains(x, y) ? Colors.Opaque : Colors.Transparent;
 
     public Rgba64 Rgba64At(int x, int y) =>
-        new Point(x, y).In(this)
+        Contains(x, y)
             ? new Rgba64(0xffff, 0xffff, 0xffff, 0xffff)
             : new Rgba64(0, 0, 0, 0);
 

@@ -203,6 +203,9 @@ public static class JpegWriter
         public readonly byte[] Buf = new byte[16];
         public uint Bits, NBits;
         public readonly byte[][] Quant = new byte[(int)QuantIndex.NQuantIndex][];
+        private Block _sosBlock;
+        private readonly Block[] _sosCb = [new(), new(), new(), new()];
+        private readonly Block[] _sosCr = [new(), new(), new(), new()];
 
         public Encoder()
         {
@@ -372,9 +375,7 @@ public static class JpegWriter
             else
                 Write(SosHeaderYCbCr);
 
-        var b = new Block();
-        var cb = new[] { new Block(), new Block(), new Block(), new Block() };
-        var cr = new[] { new Block(), new Block(), new Block(), new Block() };
+            ref Block b = ref _sosBlock;
             int prevDCY = 0, prevDCCb = 0, prevDCCr = 0;
             var bounds = m.Bounds();
             if (m is GrayImage gray)
@@ -402,16 +403,16 @@ public static class JpegWriter
                             int yOff = (i & 2) * 4;
                             var p = new Point(x + xOff, y + yOff);
                             if (rgba != null)
-                                RgbaToYCbCr(rgba, p, ref b, ref cb[i], ref cr[i]);
+                                RgbaToYCbCr(rgba, p, ref b, ref _sosCb[i], ref _sosCr[i]);
                             else if (ycbcr != null)
-                                YCbCrToYCbCr(ycbcr, p, ref b, ref cb[i], ref cr[i]);
+                                YCbCrToYCbCr(ycbcr, p, ref b, ref _sosCb[i], ref _sosCr[i]);
                             else
-                                ToYCbCr(m, p, ref b, ref cb[i], ref cr[i]);
+                                ToYCbCr(m, p, ref b, ref _sosCb[i], ref _sosCr[i]);
                             prevDCY = WriteBlock(ref b, QuantIndex.Luminance, prevDCY);
                         }
-                        Scale(ref b, cb);
+                        Scale(ref b, _sosCb);
                         prevDCCb = WriteBlock(ref b, QuantIndex.Chrominance, prevDCCb);
-                        Scale(ref b, cr);
+                        Scale(ref b, _sosCr);
                         prevDCCr = WriteBlock(ref b, QuantIndex.Chrominance, prevDCCr);
                     }
                 }
@@ -437,7 +438,7 @@ public static class JpegWriter
             for (int i = 0; i < 8; i++)
             {
                 var c = m.At(Math.Min(p.X + i, xmax), Math.Min(p.Y + j, ymax));
-                (uint r, uint g, uint b1, _) = c.Rgba();
+                (uint r, uint g, uint b1, _) = c.GetRgba();
                 var (yy, cb, cr) = YCbCrUtil.RGBToYCbCr((byte)(r >> 8), (byte)(g >> 8), (byte)(b1 >> 8));
                 yBlock[8 * j + i] = yy;
                 cbBlock[8 * j + i] = cb;

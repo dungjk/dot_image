@@ -1,3 +1,12 @@
 # .NET Core build folders
 bin/
 obj/
+imaging-master/
+image-master/
+
+# Becnhmark results
+BenchmarkDotNet.Artifacts/
+BenchmarkDotNet.Artifacts-Before/
+
+# Sample results
+samples/DotImage.Samples/outputs/

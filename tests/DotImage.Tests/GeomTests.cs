@@ -97,4 +97,30 @@ public class GeomTests
             }
         }
     }
+
+    [Fact]
+    public void Rectangle_Contains()
+    {
+        var r = Geometry.Rect(2, 3, 8, 7);
+        Assert.True(r.Contains(2, 3));
+        Assert.True(r.Contains(7, 6));
+        Assert.False(r.Contains(1, 3));
+        Assert.False(r.Contains(2, 2));
+        Assert.False(r.Contains(8, 3));
+        Assert.False(r.Contains(2, 7));
+        Assert.False(r.Contains(8, 7));
+
+        foreach (var rect in Rects)
+        {
+            for (int y = rect.Min.Y - 1; y <= rect.Max.Y; y++)
+            {
+                for (int x = rect.Min.X - 1; x <= rect.Max.X; x++)
+                {
+                    bool want = x >= rect.Min.X && x < rect.Max.X && y >= rect.Min.Y && y < rect.Max.Y;
+                    Assert.Equal(want, rect.Contains(x, y));
+                    Assert.Equal(want, new Point(x, y).In(rect));
+                }
+            }
+        }
+    }
 }

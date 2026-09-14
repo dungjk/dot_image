@@ -138,7 +138,7 @@ public class PngReaderTests
                 w.Write("tRNS {\n");
                 for (int i = 0; i <= lastAlpha; i++)
                 {
-                    var (_, _, _, alpha) = cpm[i].Rgba();
+                    var (_, _, _, alpha) = cpm[i].GetRgba();
                     w.Write($" {alpha >> 8}");
                 }
                 w.Write("}\n");
@@ -337,8 +337,8 @@ public class PngReaderTests
         {
             for (int x = bounds.Min.X; x < bounds.Max.X; x++)
             {
-                var (r0, g0, b0, a0) = a.At(x, y).Rgba();
-                var (r1, g1, b1, a1) = b.At(x, y).Rgba();
+                var (r0, g0, b0, a0) = a.At(x, y).GetRgba();
+                var (r1, g1, b1, a1) = b.At(x, y).GetRgba();
                 Assert.True(r0 == r1 && g0 == g1 && b0 == b1 && a0 == a1, $"pixel ({x},{y}) differs");
             }
         }
@@ -466,7 +466,7 @@ public class PngReaderTests
         {
             for (int x = bounds.Min.X; x < bounds.Max.X; x++)
             {
-                var rgba = m.At(x, y).Rgba();
+                var rgba = m.At(x, y).GetRgba();
                 if (rgba.A != 0)
                     got.Append($"{hex[(int)((rgba.R >> 12) & 0x0f)]}{hex[(int)((rgba.R >> 8) & 0x0f)]} ");
                 else
@@ -508,17 +508,17 @@ public class PngReaderTests
             0xe4, 0xbd, 0x70, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
         ];
         var cfg = PngReader.DecodeConfig(new MemoryStream(src));
-        var (_, _, _, alpha) = ((Palette)cfg.ColorModel)[0].Rgba();
+        var (_, _, _, alpha) = ((Palette)cfg.ColorModel)[0].GetRgba();
         Assert.Equal(0u, alpha);
         var img = PngReader.Decode(new MemoryStream(src));
-        var (_, _, _, alpha2) = ((Palette)img.ColorModel())[0].Rgba();
+        var (_, _, _, alpha2) = ((Palette)img.ColorModel())[0].GetRgba();
         Assert.Equal(0u, alpha2);
     }
 
     private static bool EqualsColor(IColor got, IColor want)
     {
-        var g = got.Rgba();
-        var w = want.Rgba();
+        var g = got.GetRgba();
+        var w = want.GetRgba();
         return g == w;
     }
 }

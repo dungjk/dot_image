@@ -1,8 +1,20 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/DotImage/DotImage.csproj" />
+    <Project Path="src/DotImage.Extended/DotImage.Extended.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/DotImage.Tests/DotImage.Tests.csproj" />
+    <Project Path="tests/DotImage.Extended.Tests/DotImage.Extended.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/DotImage.Samples/DotImage.Samples.csproj" />
+  </Folder>
+  <Folder Name="/benchmark/">
+    <Project Path="benchmark/DotImageBench/DotImageBench.csproj" />
+  </Folder>
+  <Folder Name="/eng/">
+    <Project Path="eng/GenDraw/GenDraw.csproj" />>
+    <Project Path="eng/GenerateGoFont/GenerateGoFont.csproj" />>
   </Folder>
 </Solution>

@@ -9,9 +9,6 @@ internal sealed partial class Decoder
     private const int MaxNCodes = 256;
     private const int LutSize = 8;
 
-    private static readonly JpegFormatException ErrShortHuffmanData = new("short Huffman data");
-    private static readonly JpegFormatException ErrMissingFF00 = new("missing 0xff00 sequence");
-
     private void EnsureNBits(int n)
     {
         while (true)
@@ -23,7 +20,7 @@ internal sealed partial class Decoder
             }
             catch (EndOfStreamException)
             {
-                throw ErrShortHuffmanData;
+                throw new JpegFormatException(JpegConstants.ErrShortHuffmanDataMsg);
             }
             _bits.A = (_bits.A << 8) | c;
             _bits.N += 8;
@@ -130,7 +127,7 @@ internal sealed partial class Decoder
             {
                 EnsureNBits(8);
             }
-            catch (JpegFormatException ex) when (ReferenceEquals(ex, ErrMissingFF00) || ReferenceEquals(ex, ErrShortHuffmanData))
+            catch (JpegFormatException ex) when (ex.Message == "invalid JPEG format: " + JpegConstants.ErrMissingFF00Msg || ex.Message == "invalid JPEG format: " + JpegConstants.ErrShortHuffmanDataMsg)
             {
                 if (_bytes.NUnreadable != 0)
                     UnreadByteStuffedByte();

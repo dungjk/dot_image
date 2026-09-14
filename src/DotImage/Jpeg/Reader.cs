@@ -20,15 +20,15 @@ public static class JpegReader
 
 internal sealed partial class Decoder
 {
-    private static readonly JpegUnsupportedException ErrUnsupportedSubsamplingRatio =
-        new("luma/chroma subsampling ratio");
-
     private Stream _r = Stream.Null;
     private Bits _bits;
     private readonly BytesBuffer _bytes = new();
     private int _width, _height;
     private GrayImage? _img1;
     private YCbCrImage? _img3;
+    private RgbaImage? _imgRgb;
+    private int _rgbHScale = 1;
+    private int _rgbVScale = 1;
     private byte[]? _blackPix;
     private int _blackStride;
     private bool _flex;
@@ -113,7 +113,7 @@ internal sealed partial class Decoder
             if (x != 0xff)
                 return x;
             if (_bytes.Buf[_bytes.I] != 0x00)
-                throw ErrMissingFF00;
+                throw new JpegFormatException(JpegConstants.ErrMissingFF00Msg);
             _bytes.I++;
             _bytes.NUnreadable = 2;
             return 0xff;
@@ -127,7 +127,7 @@ internal sealed partial class Decoder
         b = ReadByte();
         _bytes.NUnreadable = 2;
         if (b != 0x00)
-            throw ErrMissingFF00;
+            throw new JpegFormatException(JpegConstants.ErrMissingFF00Msg);
         return 0xff;
     }
 
@@ -177,13 +177,13 @@ internal sealed partial class Decoder
     {
         if (_nComp != 0)
             throw new JpegFormatException("multiple SOF markers");
-        switch (n)
+        _nComp = n switch
         {
-            case 6 + 3 * 1: _nComp = 1; break;
-            case 6 + 3 * 3: _nComp = 3; break;
-            case 6 + 3 * 4: _nComp = 4; break;
-            default: throw new JpegUnsupportedException("number of components");
-        }
+            6 + 3 * 1 => 1,
+            6 + 3 * 3 => 3,
+            6 + 3 * 4 => 4,
+            _ => throw new JpegUnsupportedException("number of components"),
+        };
         ReadFull(_tmp.AsSpan(0, n));
         if (_tmp[0] != 8)
             throw new JpegUnsupportedException("precision");
@@ -210,7 +210,7 @@ internal sealed partial class Decoder
             if (h < 1 || 4 < h || v < 1 || 4 < v)
                 throw new JpegFormatException("luma/chroma subsampling ratio");
             if (h == 3 || v == 3)
-                throw ErrUnsupportedSubsamplingRatio;
+                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
 
             switch (_nComp)
             {
@@ -222,16 +222,16 @@ internal sealed partial class Decoder
                     {
                         case 0:
                             if (hv != 0x11 && hv != 0x22)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                         case 1:
                         case 2:
                             if (hv != 0x11)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                         case 3:
                             if (_comp[0].H != h || _comp[0].V != v)
-                                throw ErrUnsupportedSubsamplingRatio;
+                                throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
                             break;
                     }
                     break;
@@ -248,7 +248,7 @@ internal sealed partial class Decoder
             for (int i = 0; i < 3; i++)
             {
                 if (_maxH % _comp[i].H != 0 || _maxV % _comp[i].V != 0)
-                    throw ErrUnsupportedSubsamplingRatio;
+                    throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
             }
         }
 
@@ -415,6 +415,8 @@ internal sealed partial class Decoder
             ReconstructProgressiveImage();
         if (_img1 != null)
             return _img1;
+        if (_imgRgb != null)
+            return _imgRgb;
         if (_img3 != null)
         {
             if (_blackPix != null)
@@ -450,33 +452,33 @@ internal sealed partial class Decoder
         }
 
         var cmyk = Images.NewCmyk(bounds);
-        var translations = new (byte[]? Src, int Stride)[]
+        var dstPix = cmyk.Pix.Span;
+        FillCmykChannel(_img3.Y.Span, _img3.YStride, false, 0, bounds, dstPix, cmyk.Stride);
+        FillCmykChannel(_img3.Cb.Span, _img3.CStride,
+            _comp[1].H != _comp[0].H || _comp[1].V != _comp[0].V, 1, bounds, dstPix, cmyk.Stride);
+        FillCmykChannel(_img3.Cr.Span, _img3.CStride,
+            _comp[2].H != _comp[0].H || _comp[2].V != _comp[0].V, 2, bounds, dstPix, cmyk.Stride);
+        FillCmykChannel(_blackPix, _blackStride,
+            _comp[3].H != _comp[0].H || _comp[3].V != _comp[0].V, 3, bounds, dstPix, cmyk.Stride);
+        return cmyk;
+    }
+
+    private static void FillCmykChannel(
+        ReadOnlySpan<byte> src, int srcStride, bool subsample, int channel,
+        Rect bounds, Span<byte> dstPix, int dstStride)
+    {
+        for (int y = bounds.Min.Y; y < bounds.Max.Y; y++)
         {
-            (_img3.Y.ToArray(), _img3.YStride),
-            (_img3.Cb.ToArray(), _img3.CStride),
-            (_img3.Cr.ToArray(), _img3.CStride),
-            (_blackPix, _blackStride),
-        };
-        for (int t = 0; t < 4; t++)
-        {
-            var (src, stride) = translations[t];
-            bool subsample = _comp[t].H != _comp[0].H || _comp[t].V != _comp[0].V;
-            var dstPix = cmyk.Pix.Span;
-            for (int y = bounds.Min.Y; y < bounds.Max.Y; y++)
+            int iBase = (y - bounds.Min.Y) * dstStride + channel;
+            int sy = y - bounds.Min.Y;
+            if (subsample) sy /= 2;
+            for (int x = bounds.Min.X; x < bounds.Max.X; x++)
             {
-                int iBase = (y - bounds.Min.Y) * cmyk.Stride;
-                int sy = y - bounds.Min.Y;
-                if (subsample) sy /= 2;
-                for (int x = bounds.Min.X; x < bounds.Max.X; x++)
-                {
-                    int i = iBase + (x - bounds.Min.X) * 4 + t;
-                    int sx = x - bounds.Min.X;
-                    if (subsample) sx /= 2;
-                    dstPix[i] = (byte)(255 - src![sy * stride + sx]);
-                }
+                int sx = x - bounds.Min.X;
+                if (subsample) sx /= 2;
+                dstPix[iBase + (x - bounds.Min.X) * 4] = (byte)(255 - src[sy * srcStride + sx]);
             }
         }
-        return cmyk;
     }
 
     private bool IsRGB()
@@ -492,7 +494,7 @@ internal sealed partial class Decoder
         int h0 = _comp[0].H, h1 = _comp[1].H, h2 = _comp[2].H;
         int v0 = _comp[0].V, v1 = _comp[1].V, v2 = _comp[2].V;
         if (h1 != h2 || h0 % h1 != 0 || v1 != v2 || v0 % v1 != 0)
-            throw ErrUnsupportedSubsamplingRatio;
+            throw new JpegUnsupportedException(JpegConstants.ErrUnsupportedSubsamplingRatioMsg);
 
         int cScale = h0 / h1;
         var bounds = _img3!.Bounds();

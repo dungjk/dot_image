@@ -33,7 +33,8 @@ public sealed class LzwReader : Stream
     private readonly ushort[] _prefix = new ushort[1 << MaxWidth];
     private readonly byte[] _output = new byte[2 * (1 << MaxWidth)];
     private int _o;
-    private byte[] _toRead = [];
+    private int _readPos;
+    private int _readLen;
 
     public LzwReader(Stream src, LzwOrder order, int litWidth)
     {
@@ -47,7 +48,8 @@ public sealed class LzwReader : Stream
         _nBits = 0;
         _err = null;
         _o = 0;
-        _toRead = [];
+        _readPos = 0;
+        _readLen = 0;
         _last = DecoderInvalidCode;
 
         switch (order)
@@ -113,20 +115,18 @@ public sealed class LzwReader : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        if (_err is EndOfStreamException && _toRead.Length == 0)
+        if (_err is EndOfStreamException && _readLen == 0)
             return 0;
 
         int total = 0;
         while (count > 0)
         {
-            if (_toRead.Length > 0)
+            if (_readLen > 0)
             {
-                int n = Math.Min(count, _toRead.Length);
-                Buffer.BlockCopy(_toRead, 0, buffer, offset, n);
-                if (n < _toRead.Length)
-                    _toRead = _toRead[n..];
-                else
-                    _toRead = [];
+                int n = Math.Min(count, _readLen);
+                Buffer.BlockCopy(_output, _readPos, buffer, offset, n);
+                _readPos += n;
+                _readLen -= n;
                 offset += n;
                 count -= n;
                 total += n;
@@ -148,10 +148,34 @@ public sealed class LzwReader : Stream
 
     public override int Read(Span<byte> buffer)
     {
-        byte[] arr = buffer.Length <= 256 ? stackalloc byte[buffer.Length].ToArray() : new byte[buffer.Length];
-        int n = Read(arr, 0, buffer.Length);
-        arr.AsSpan(0, n).CopyTo(buffer);
-        return n;
+        if (_err is EndOfStreamException && _readLen == 0)
+            return 0;
+
+        int total = 0;
+        while (buffer.Length > 0)
+        {
+            if (_readLen > 0)
+            {
+                int n = Math.Min(buffer.Length, _readLen);
+                _output.AsSpan(_readPos, n).CopyTo(buffer);
+                _readPos += n;
+                _readLen -= n;
+                buffer = buffer[n..];
+                total += n;
+                continue;
+            }
+
+            if (_err != null)
+            {
+                if (_err is EndOfStreamException)
+                    return total;
+                return total > 0 ? total : throw _err;
+            }
+
+            Decode();
+        }
+
+        return total;
     }
 
     private void Decode()
@@ -249,7 +273,8 @@ public sealed class LzwReader : Stream
         }
 
     flush:
-        _toRead = _output[.._o];
+        _readPos = 0;
+        _readLen = _o;
         _o = 0;
     }
 
@@ -396,15 +421,18 @@ public sealed class LzwWriter : Stream
         return null;
     }
 
-    public override void Write(byte[] buffer, int offset, int count)
+    public override void Write(byte[] buffer, int offset, int count) =>
+        Write(buffer.AsSpan(offset, count));
+
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
         if (_err != null) throw _err;
-        if (count == 0) return;
+        if (buffer.IsEmpty) return;
 
         byte maxLit = (byte)((1 << (int)_litWidth) - 1);
         if (maxLit != 0xff)
         {
-            for (int i = offset; i < offset + count; i++)
+            for (int i = 0; i < buffer.Length; i++)
             {
                 if (buffer[i] > maxLit)
                 {
@@ -415,17 +443,17 @@ public sealed class LzwWriter : Stream
         }
 
         uint code = _savedCode;
-        int start = offset;
+        int start = 0;
         if (code == InvalidCode)
         {
             uint clear = 1u << (int)_litWidth;
             _err = _write!(this, clear);
             if (_err != null) throw _err;
-            code = buffer[offset];
-            start = offset + 1;
+            code = buffer[0];
+            start = 1;
         }
 
-        for (int idx = start; idx < offset + count; idx++)
+        for (int idx = start; idx < buffer.Length; idx++)
         {
             uint literal = buffer[idx];
             uint key = (code << 8) | literal;

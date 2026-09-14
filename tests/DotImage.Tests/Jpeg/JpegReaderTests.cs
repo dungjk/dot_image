@@ -266,8 +266,8 @@ public class JpegReaderTests
             {
                 var c0 = m0.At(x, y);
                 var c1 = m1.At(x, y);
-                (uint r0, uint g0, uint b0, _) = c0.Rgba();
-                (uint r1, uint g1, uint b1, _) = c1.Rgba();
+                (uint r0, uint g0, uint b0, _) = c0.GetRgba();
+                (uint r1, uint g1, uint b1, _) = c1.GetRgba();
                 sum += Delta(r0, r1) + Delta(g0, g1) + Delta(b0, b1);
                 n += 3;
             }

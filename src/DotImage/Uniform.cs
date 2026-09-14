@@ -11,7 +11,7 @@ public sealed class UniformImage : IImage, IRgba64Image, IColorModel, IColor
 
     public UniformImage(IColor c) => C = c;
 
-    public (uint R, uint G, uint B, uint A) Rgba() => C.Rgba();
+    public (uint R, uint G, uint B, uint A) GetRgba() => C.GetRgba();
 
     public IColorModel ColorModel() => this;
 
@@ -23,13 +23,13 @@ public sealed class UniformImage : IImage, IRgba64Image, IColorModel, IColor
 
     public Rgba64 Rgba64At(int x, int y)
     {
-        var (r, g, b, a) = C.Rgba();
+        var (r, g, b, a) = C.GetRgba();
         return new Rgba64((ushort)r, (ushort)g, (ushort)b, (ushort)a);
     }
 
     public bool Opaque()
     {
-        var (_, _, _, a) = C.Rgba();
+        var (_, _, _, a) = C.GetRgba();
         return a == 0xffff;
     }
 }

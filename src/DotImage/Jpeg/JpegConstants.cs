@@ -13,6 +13,10 @@ internal static class JpegConstants
     internal const int MaxComponents = 4;
     internal const int BlockSize = 8 * 8;
 
+    internal const string ErrShortHuffmanDataMsg = "short Huffman data";
+    internal const string ErrMissingFF00Msg = "missing 0xff00 sequence";
+    internal const string ErrUnsupportedSubsamplingRatioMsg = "luma/chroma subsampling ratio";
+
     internal const byte Sof0Marker = 0xc0;
     internal const byte Sof1Marker = 0xc1;
     internal const byte Sof2Marker = 0xc2;

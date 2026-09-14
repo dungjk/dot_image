@@ -11,8 +11,8 @@ public class YCbCrTests
 
     private static void AssertColorsEqual(IColor c0, IColor c1)
     {
-        (uint r0, uint g0, uint b0, uint a0) = c0.Rgba();
-        (uint r1, uint g1, uint b1, uint a1) = c1.Rgba();
+        (uint r0, uint g0, uint b0, uint a0) = c0.GetRgba();
+        (uint r1, uint g1, uint b1, uint a1) = c1.GetRgba();
         Assert.True(r0 == r1 && g0 == g1 && b0 == b1 && a0 == a1,
             $"got  0x{r0:x4} 0x{g0:x4} 0x{b0:x4} 0x{a0:x4}\n" +
             $"want 0x{r1:x4} 0x{g1:x4} 0x{b1:x4} 0x{a1:x4}");
@@ -49,7 +49,7 @@ public class YCbCrTests
                 for (int cr = 0; cr < 256; cr += 3)
                 {
                     var x = new YCbCr((byte)y, (byte)cb, (byte)cr);
-                    (uint r0, uint g0, uint b0, _) = x.Rgba();
+                    (uint r0, uint g0, uint b0, _) = x.GetRgba();
                     byte r1 = (byte)(r0 >> 8);
                     byte g1 = (byte)(g0 >> 8);
                     byte b1 = (byte)(b0 >> 8);
@@ -127,7 +127,7 @@ public class YCbCrTests
                     for (int k = 0; k < 256; k += 11)
                     {
                         var x = new Cmyk((byte)c, (byte)m, (byte)y, (byte)k);
-                        (uint r0, uint g0, uint b0, _) = x.Rgba();
+                        (uint r0, uint g0, uint b0, _) = x.GetRgba();
                         byte r1 = (byte)(r0 >> 8);
                         byte g1 = (byte)(g0 >> 8);
                         byte b1 = (byte)(b0 >> 8);

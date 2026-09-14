@@ -303,8 +303,8 @@ public class GifReaderTests
         Assert.Equal(want.Length, got.Length);
         for (int i = 0; i < want.Length; i++)
         {
-            var (wr, wg, wb, wa) = want[i].Rgba();
-            var (gr, gg, gb, ga) = got[i].Rgba();
+            var (wr, wg, wb, wa) = want[i].GetRgba();
+            var (gr, gg, gb, ga) = got[i].GetRgba();
             Assert.Equal((wr, wg, wb, wa), (gr, gg, gb, ga));
         }
     }
